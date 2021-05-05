@@ -7,8 +7,9 @@
 typedef struct Player
 {
     Vector2 position;
+    Vector2 acceleration;
+    Vector2 speed;
     float rotation;
-    float moveSpeed;
     float scale;
     Texture2D tex;
     Rectangle rect;
@@ -54,7 +55,7 @@ void ClampPlayerPosition(Player *player)
     if (player->position.y >= screenHeight - y_offset) player->position.y = screenHeight - y_offset;
 }
 
-void Shoot(Player *player, Bullet bullets[]){
+void Shoot(Player *player, Bullet bullets[]) {
 
 }
 
@@ -70,11 +71,12 @@ int main(void)
 
     Player player = {0};
     player.position = (Vector2) {(float)screenWidth/2, (float)screenHeight/2};
+    player.acceleration = Vector2Zero();
+    player.speed = Vector2Zero();
     player.rotation = 0.0f;
     player.tint = WHITE;
     player.tex = LoadTexture("../resources/playerShip.png");
     player.rect = (Rectangle) {0, 0, (float) player.tex.width, (float) player.tex.height};
-    player.moveSpeed = 200.0f;
     player.scale = 1.0f;
 
     Bullet bullet = {0};
@@ -99,16 +101,29 @@ int main(void)
         // ----------------------------------------------
         // Update variables
         // ----------------------------------------------
-        frameTime = GetFrameTime();
+//        frameTime = GetFrameTime();
 
         if (IsKeyPressed(KEY_F1)) debugMode = !debugMode;
 
-        if (IsKeyDown(KEY_W)) player.position.y -= player.moveSpeed * frameTime;
-        if (IsKeyDown(KEY_S)) player.position.y += player.moveSpeed * frameTime;
-        if (IsKeyDown(KEY_A)) player.position.x -= player.moveSpeed * frameTime;
-        if (IsKeyDown(KEY_D)) player.position.x += player.moveSpeed * frameTime;
+        player.acceleration = (Vector2){10, 10};
 
-        if (IsKeyDown(KEY_SPACE)) Shoot();
+        if (IsKeyDown(KEY_W))
+        {
+        	player.acceleration = Vector2Scale(Vector2Rotate(player.acceleration, player.rotation), 5.0f);
+        }
+        if (IsKeyDown(KEY_S))
+        {
+        	player.acceleration = Vector2Scale(Vector2Rotate(player.acceleration, player.rotation), -5.0f);
+        }
+        if (IsKeyDown(KEY_A)) player.rotation -= 5;
+        if (IsKeyDown(KEY_D)) player.rotation += 5;
+
+        if (player.acceleration.x != 0 && player.acceleration.y != 0)
+            player.speed = Vector2Multiply(player.speed, player.acceleration);
+
+        player.position = Vector2Add(player.position, player.speed);
+
+//        if (IsKeyDown(KEY_SPACE)) Shoot(&player, );
 
         ClampPlayerPosition(&player);
 
@@ -127,6 +142,8 @@ int main(void)
         {
             DrawFPS(5, 0);
             DrawText(TextFormat("Player Pos: (%.2f, %.2f)", player.position.x, player.position.y), 5, 20, 20, RAYWHITE);
+            DrawText(TextFormat("Player Speed: (%.2f, %.2f)", player.speed.x, player.speed.y), 5, 40, 20, RAYWHITE);
+            DrawText(TextFormat("Player Acceleration: (%.2f, %.2f)", player.acceleration.x, player.acceleration.y), 5, 60, 20, RAYWHITE);
         }
 
         EndDrawing();
