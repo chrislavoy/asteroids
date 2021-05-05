@@ -7,8 +7,8 @@
 typedef struct Player
 {
     Vector2 position;
+    Vector2 velocity;
     Vector2 acceleration;
-    Vector2 speed;
     float rotation;
     float scale;
     Texture2D tex;
@@ -26,9 +26,9 @@ typedef struct Bullet {
 //typedef struct Asteroid
 //{
 //    Vector2 position;
-//    Vector2 velocity;
+//    Vector2 acceleration;
 //    float rotation;
-//    float speed;
+//    float velocity;
 //    Texture2D tex;
 //    Rectangle rect;
 //    Color tint;
@@ -39,7 +39,7 @@ typedef struct Bullet {
 //    Bullet bullet = {0};
 //    bullet.tex = LoadTexture("../resources/fire04.png");
 //    bullet.tint = WHITE;
-//    bullet.speed = 500.0f;
+//    bullet.velocity = 500.0f;
 //}
 
 void ClampPlayerPosition(Player *player)
@@ -48,16 +48,21 @@ void ClampPlayerPosition(Player *player)
     const float screenHeight = (float) GetScreenHeight();
     const float x_offset = 50.0f;
     const float y_offset = 40.0f;
+//
+//    if (player->position.x <= x_offset) player->position.x = x_offset;
+//    if (player->position.x >= screenWidth - x_offset) player->position.x = screenWidth - x_offset;
+//    if (player->position.y <= y_offset) player->position.y = y_offset;
+//    if (player->position.y >= screenHeight - y_offset) player->position.y = screenHeight - y_offset;
 
-    if (player->position.x <= x_offset) player->position.x = x_offset;
-    if (player->position.x >= screenWidth - x_offset) player->position.x = screenWidth - x_offset;
-    if (player->position.y <= y_offset) player->position.y = y_offset;
-    if (player->position.y >= screenHeight - y_offset) player->position.y = screenHeight - y_offset;
+    if (player->position.x <= 0 - x_offset) player->position.x = screenWidth + x_offset;
+    else if (player->position.x >= screenWidth + x_offset) player->position.x = 0 - x_offset;
+    if (player->position.y <= 0 - y_offset) player->position.y = screenHeight + y_offset;
+    else if (player->position.y >= screenHeight + y_offset) player->position.y = 0 - y_offset;
 }
 
-void Shoot(Player *player, Bullet bullets[]) {
-
-}
+//void Shoot(Player *player, Bullet bullets[]) {
+//
+//}
 
 int main(void)
 {
@@ -72,7 +77,7 @@ int main(void)
     Player player = {0};
     player.position = (Vector2) {(float)screenWidth/2, (float)screenHeight/2};
     player.acceleration = Vector2Zero();
-    player.speed = Vector2Zero();
+    player.velocity = Vector2Zero();
     player.rotation = 0.0f;
     player.tint = WHITE;
     player.tex = LoadTexture("../resources/playerShip.png");
@@ -101,27 +106,24 @@ int main(void)
         // ----------------------------------------------
         // Update variables
         // ----------------------------------------------
-//        frameTime = GetFrameTime();
+        frameTime = GetFrameTime();
 
         if (IsKeyPressed(KEY_F1)) debugMode = !debugMode;
 
-        player.acceleration = (Vector2){10, 10};
+        player.acceleration = (Vector2){0, 0};
 
         if (IsKeyDown(KEY_W))
-        {
-        	player.acceleration = Vector2Scale(Vector2Rotate(player.acceleration, player.rotation), 5.0f);
-        }
+            player.acceleration = Vector2Scale(Vector2Rotate((Vector2){0, -1}, player.rotation), 5.0f * frameTime);
         if (IsKeyDown(KEY_S))
-        {
-        	player.acceleration = Vector2Scale(Vector2Rotate(player.acceleration, player.rotation), -5.0f);
-        }
+            player.acceleration = Vector2Scale(Vector2Rotate((Vector2){0, 1}, player.rotation), 5.0f * frameTime);
         if (IsKeyDown(KEY_A)) player.rotation -= 5;
         if (IsKeyDown(KEY_D)) player.rotation += 5;
 
-        if (player.acceleration.x != 0 && player.acceleration.y != 0)
-            player.speed = Vector2Multiply(player.speed, player.acceleration);
+        if (IsKeyDown(KEY_X)) player.velocity = (Vector2){0, 0};
 
-        player.position = Vector2Add(player.position, player.speed);
+        player.velocity = Vector2Add(player.velocity, player.acceleration);
+
+        player.position = Vector2Add(player.position, player.velocity);
 
 //        if (IsKeyDown(KEY_SPACE)) Shoot(&player, );
 
@@ -142,8 +144,11 @@ int main(void)
         {
             DrawFPS(5, 0);
             DrawText(TextFormat("Player Pos: (%.2f, %.2f)", player.position.x, player.position.y), 5, 20, 20, RAYWHITE);
-            DrawText(TextFormat("Player Speed: (%.2f, %.2f)", player.speed.x, player.speed.y), 5, 40, 20, RAYWHITE);
+            DrawText(TextFormat("Player Velocity: (%.2f, %.2f)", player.velocity.x, player.velocity.y), 5, 40, 20, RAYWHITE);
             DrawText(TextFormat("Player Acceleration: (%.2f, %.2f)", player.acceleration.x, player.acceleration.y), 5, 60, 20, RAYWHITE);
+            DrawText(TextFormat("Player Rotation: %.2f", player.rotation), 5, 80, 20, RAYWHITE);
+//            DrawLineV(player.position, Vector2Rotate(Vector2Add(player.position, (Vector2){0, -20}), player.rotation), RED);
+            DrawLineV(player.position, Vector2Add(player.position, Vector2Scale(player.velocity, 5)), GREEN);
         }
 
         EndDrawing();
