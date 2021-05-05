@@ -1,6 +1,9 @@
 #include "raylib.h"
 #include "raymath.h"
 
+#define MAX_ASTEROIDS 10
+#define MAX_BULLETS 25
+
 typedef struct Player
 {
     Vector2 position;
@@ -40,14 +43,19 @@ typedef struct Bullet {
 
 void ClampPlayerPosition(Player *player)
 {
-    int screenWidth = GetScreenWidth();
-    int screenHeight = GetScreenHeight();
+    const float screenWidth = (float) GetScreenWidth();
+    const float screenHeight = (float) GetScreenHeight();
+    const float x_offset = 50.0f;
+    const float y_offset = 40.0f;
 
-    if (player->position.x <= 50) player->position.x = 50;
-    if (player->position.x >= screenWidth - 50) player->position.x = screenWidth - 50;
+    if (player->position.x <= x_offset) player->position.x = x_offset;
+    if (player->position.x >= screenWidth - x_offset) player->position.x = screenWidth - x_offset;
+    if (player->position.y <= y_offset) player->position.y = y_offset;
+    if (player->position.y >= screenHeight - y_offset) player->position.y = screenHeight - y_offset;
+}
 
-    if (player->position.y <= 40) player->position.y = 40;
-    if (player->position.y >= screenHeight - 40) player->position.y = screenHeight - 40;
+void Shoot(Player *player, Bullet bullets[]){
+
 }
 
 int main(void)
@@ -61,7 +69,7 @@ int main(void)
     SetTargetFPS(60);
 
     Player player = {0};
-    player.position = (Vector2) {screenWidth/2, screenHeight/2};
+    player.position = (Vector2) {(float)screenWidth/2, (float)screenHeight/2};
     player.rotation = 0.0f;
     player.tint = WHITE;
     player.tex = LoadTexture("../resources/playerShip.png");
@@ -80,7 +88,7 @@ int main(void)
 
     Texture2D background = LoadTexture("../resources/darkPurple.png");
     Rectangle backgroundRect = {0, 0, (float) background.width, (float) background.height};
-    Rectangle backgroundDestRect = {0, 0, screenWidth, screenHeight};
+    Rectangle backgroundDestRect = {0, 0, (float)screenWidth, (float)screenHeight};
     Rectangle destRect;
     Vector2 origin = {(float) player.tex.width/2, (float) player.tex.height/2};
 
@@ -100,7 +108,7 @@ int main(void)
         if (IsKeyDown(KEY_A)) player.position.x -= player.moveSpeed * frameTime;
         if (IsKeyDown(KEY_D)) player.position.x += player.moveSpeed * frameTime;
 
-        if (IsKeyDown(KEY_SPACE)) CreateBulletInstance();
+        if (IsKeyDown(KEY_SPACE)) Shoot();
 
         ClampPlayerPosition(&player);
 
