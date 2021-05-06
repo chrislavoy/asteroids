@@ -2,7 +2,8 @@
 #include "raymath.h"
 
 #define MAX_ASTEROIDS 10
-#define MAX_BULLETS 25
+#define MAX_BULLETS 20
+#define BULLET_LIFETIME 0.8f
 
 typedef struct Player
 {
@@ -11,6 +12,7 @@ typedef struct Player
     Vector2 acceleration;
     float rotation;
     float scale;
+    float movementSpeed;
     Texture2D tex;
     Rectangle rect;
     Color tint;
@@ -18,9 +20,15 @@ typedef struct Player
 
 typedef struct Bullet {
     Vector2 position;
-    float speed;
-    Texture2D tex;
+    Vector2 velocity;
+    float rotation;
+    float scale;
+    float movementSpeed;
+    float lifetime;
+//    Texture2D tex;
+    Rectangle rect;
     Color tint;
+    bool visible;
 } Bullet;
 
 //typedef struct Asteroid
@@ -34,35 +42,38 @@ typedef struct Bullet {
 //    Color tint;
 //} Asteroid;
 
-//void CreateBulletInstance(Player *player)
-//{
-//    Bullet bullet = {0};
-//    bullet.tex = LoadTexture("../resources/fire04.png");
-//    bullet.tint = WHITE;
-//    bullet.velocity = 500.0f;
-//}
-
-void ClampPlayerPosition(Player *player)
+void ScreenLoop(Vector2 *position)
 {
     const float screenWidth = (float) GetScreenWidth();
     const float screenHeight = (float) GetScreenHeight();
     const float x_offset = 50.0f;
     const float y_offset = 40.0f;
-//
-//    if (player->position.x <= x_offset) player->position.x = x_offset;
-//    if (player->position.x >= screenWidth - x_offset) player->position.x = screenWidth - x_offset;
-//    if (player->position.y <= y_offset) player->position.y = y_offset;
-//    if (player->position.y >= screenHeight - y_offset) player->position.y = screenHeight - y_offset;
 
-    if (player->position.x <= 0 - x_offset) player->position.x = screenWidth + x_offset;
-    else if (player->position.x >= screenWidth + x_offset) player->position.x = 0 - x_offset;
-    if (player->position.y <= 0 - y_offset) player->position.y = screenHeight + y_offset;
-    else if (player->position.y >= screenHeight + y_offset) player->position.y = 0 - y_offset;
+    if (position->x <= 0 - x_offset) position->x = screenWidth + x_offset;
+    else if (position->x >= screenWidth + x_offset) position->x = 0 - x_offset;
+    if (position->y <= 0 - y_offset) position->y = screenHeight + y_offset;
+    else if (position->y >= screenHeight + y_offset) position->y = 0 - y_offset;
 }
 
-//void Shoot(Player *player, Bullet bullets[]) {
-//
-//}
+void Shoot(Player *player, Bullet *bullet) {
+    bullet->position = player->position;
+    bullet->rotation = player->rotation;
+    bullet->velocity = player->velocity;
+    bullet->velocity = Vector2Add(Vector2Scale(Vector2Rotate((Vector2){0, -1}, player->rotation), bullet->movementSpeed), bullet->velocity);
+    bullet->visible = true;
+}
+
+Vector2 UpdatePosition(Vector2 *position, Vector2 *velocity, float frameTime)
+{
+    Vector2 newPos = (Vector2){
+            position->x + (velocity->x * frameTime),
+            position->y + (velocity->y * frameTime)
+    };
+
+    ScreenLoop(&newPos);
+
+    return newPos;
+}
 
 int main(void)
 {
@@ -83,11 +94,26 @@ int main(void)
     player.tex = LoadTexture("../resources/playerShip.png");
     player.rect = (Rectangle) {0, 0, (float) player.tex.width, (float) player.tex.height};
     player.scale = 1.0f;
+    player.movementSpeed = 15.0f;
 
-    Bullet bullet = {0};
-    bullet.tex = LoadTexture("../resources/fire04.png");
-    bullet.tint = WHITE;
-    bullet.speed = 500.0f;
+    Texture2D  bulletTexture = LoadTexture("../resources/fire04.png");
+    Bullet bullets[MAX_BULLETS];
+
+    for (int i = 0; i < MAX_BULLETS; i++)
+    {
+        bullets[i].position = (Vector2){0, 0};
+        bullets[i].velocity = (Vector2){0, 0};
+        bullets[i].rotation = 0;
+        bullets[i].scale = 1.0f;
+        bullets[i].movementSpeed = 1000.0f;
+        bullets[i].lifetime = BULLET_LIFETIME;
+        bullets[i].rect = (Rectangle) {0, 0, (float) bulletTexture.width, (float) bulletTexture.height};
+        bullets[i].tint = WHITE;
+        bullets[i].visible = false;
+    }
+
+    size_t bulletIterator = 0;
+
 
 //    Asteroid asteroids[] = {
 //            {{0, 0}, {1, 1}, 20.0f, LoadTexture("../Meteors/meteorBrown_big1.png")}
@@ -97,6 +123,7 @@ int main(void)
     Rectangle backgroundRect = {0, 0, (float) background.width, (float) background.height};
     Rectangle backgroundDestRect = {0, 0, (float)screenWidth, (float)screenHeight};
     Rectangle destRect;
+    Rectangle bulletDestRect;
     Vector2 origin = {(float) player.tex.width/2, (float) player.tex.height/2};
 
     float frameTime;
@@ -108,28 +135,48 @@ int main(void)
         // ----------------------------------------------
         frameTime = GetFrameTime();
 
-        if (IsKeyPressed(KEY_F1)) debugMode = !debugMode;
-
         player.acceleration = (Vector2){0, 0};
 
+        if (IsKeyPressed(KEY_F1)) debugMode = !debugMode;
+
         if (IsKeyDown(KEY_W))
-            player.acceleration = Vector2Scale(Vector2Rotate((Vector2){0, -1}, player.rotation), 5.0f * frameTime);
+            player.acceleration = Vector2Scale(Vector2Rotate((Vector2){0, -1}, player.rotation), player.movementSpeed);
         if (IsKeyDown(KEY_S))
-            player.acceleration = Vector2Scale(Vector2Rotate((Vector2){0, 1}, player.rotation), 5.0f * frameTime);
+            player.acceleration = Vector2Scale(Vector2Rotate((Vector2){0, 1}, player.rotation), player.movementSpeed);
         if (IsKeyDown(KEY_A)) player.rotation -= 5;
         if (IsKeyDown(KEY_D)) player.rotation += 5;
 
         if (IsKeyDown(KEY_X)) player.velocity = (Vector2){0, 0};
 
+        if (IsKeyPressed(KEY_SPACE))
+        {
+            bulletIterator = (bulletIterator + 1) % ((int)MAX_BULLETS - 1);
+            Shoot(&player, &bullets[bulletIterator]);
+        }
+
         player.velocity = Vector2Add(player.velocity, player.acceleration);
 
-        player.position = Vector2Add(player.position, player.velocity);
+        player.position = UpdatePosition(&player.position, &player.velocity, frameTime);
 
-//        if (IsKeyDown(KEY_SPACE)) Shoot(&player, );
-
-        ClampPlayerPosition(&player);
+//        ScreenLoop(&player.position);
 
         destRect = (Rectangle){player.position.x, player.position.y, (float) player.tex.width, (float) player.tex.height};
+
+        for (int i = 0; i < MAX_BULLETS; i++)
+        {
+            if (bullets[i].visible)
+            {
+                bullets[i].position = UpdatePosition(&bullets[i].position, &bullets[i].velocity, frameTime);
+                bullets[i].lifetime -= 1 * frameTime;
+//                ScreenLoop(&bullets[i].position);
+
+                if (bullets[i].lifetime <= 0)
+                {
+                    bullets[i].visible = false;
+                    bullets[i].lifetime = BULLET_LIFETIME;
+                }
+            }
+        }
 
         // ----------------------------------------------
         // Drawing logic
@@ -140,6 +187,12 @@ int main(void)
         DrawTextureTiled(background, backgroundRect, backgroundDestRect, (Vector2) {0, 0}, 0.0f, 1.0f, WHITE);
         DrawTexturePro(player.tex, player.rect, destRect, origin, player.rotation, player.tint);
 
+        for (int i = 0; i < MAX_BULLETS; i++)
+        {
+            bulletDestRect = (Rectangle){bullets[i].position.x, bullets[i].position.y, (float) bulletTexture.width, (float) bulletTexture.height};
+            if (bullets[i].visible) DrawTexturePro(bulletTexture, bullets[i].rect, bulletDestRect, origin, bullets[i].rotation, bullets[i].tint);
+        }
+
         if (debugMode)
         {
             DrawFPS(5, 0);
@@ -147,7 +200,7 @@ int main(void)
             DrawText(TextFormat("Player Velocity: (%.2f, %.2f)", player.velocity.x, player.velocity.y), 5, 40, 20, RAYWHITE);
             DrawText(TextFormat("Player Acceleration: (%.2f, %.2f)", player.acceleration.x, player.acceleration.y), 5, 60, 20, RAYWHITE);
             DrawText(TextFormat("Player Rotation: %.2f", player.rotation), 5, 80, 20, RAYWHITE);
-//            DrawLineV(player.position, Vector2Rotate(Vector2Add(player.position, (Vector2){0, -20}), player.rotation), RED);
+            DrawText(TextFormat("Bullet Iterator: %d", bulletIterator), 5, 100, 20, RAYWHITE);
             DrawLineV(player.position, Vector2Add(player.position, Vector2Scale(player.velocity, 5)), GREEN);
         }
 
