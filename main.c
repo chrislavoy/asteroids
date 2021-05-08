@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#define MAX_ASTEROIDS 10
+#define MAX_ASTEROIDS 4
 #define MAX_BULLETS 20
 #define BULLET_LIFETIME 0.8f
 
@@ -25,22 +25,19 @@ typedef struct Bullet {
     float scale;
     float movementSpeed;
     float lifetime;
-//    Texture2D tex;
     Rectangle rect;
     Color tint;
     bool visible;
 } Bullet;
 
-//typedef struct Asteroid
-//{
-//    Vector2 position;
-//    Vector2 acceleration;
-//    float rotation;
-//    float velocity;
-//    Texture2D tex;
-//    Rectangle rect;
-//    Color tint;
-//} Asteroid;
+typedef struct Asteroid
+{
+    Vector2 position;
+    Vector2 velocity;
+    float rotation;
+    Rectangle rect;
+    Color tint;
+} Asteroid;
 
 void ScreenLoop(Vector2 *position)
 {
@@ -94,9 +91,9 @@ int main(void)
     player.tex = LoadTexture("../resources/playerShip.png");
     player.rect = (Rectangle) {0, 0, (float) player.tex.width, (float) player.tex.height};
     player.scale = 1.0f;
-    player.movementSpeed = 15.0f;
+    player.movementSpeed = 5.0f;
 
-    Texture2D  bulletTexture = LoadTexture("../resources/fire04.png");
+    Texture2D bulletTexture = LoadTexture("../resources/fire04.png");
     Bullet bullets[MAX_BULLETS];
 
     for (int i = 0; i < MAX_BULLETS; i++)
@@ -114,16 +111,25 @@ int main(void)
 
     size_t bulletIterator = 0;
 
+    Texture2D asteroidTexture = LoadTexture("../resources/Meteors/meteorBrown_big1.png");
+    Asteroid asteroids[MAX_ASTEROIDS];
+    float movementSpeed = 150;
 
-//    Asteroid asteroids[] = {
-//            {{0, 0}, {1, 1}, 20.0f, LoadTexture("../Meteors/meteorBrown_big1.png")}
-//    };
+    for (int i = 0; i < MAX_ASTEROIDS; ++i)
+    {
+        asteroids[i].position = (Vector2){GetRandomValue(0, screenWidth), GetRandomValue(0, screenHeight)};
+        asteroids[i].velocity = (Vector2){GetRandomValue(-movementSpeed, movementSpeed), GetRandomValue(-movementSpeed, movementSpeed)};
+        asteroids[i].rotation = GetRandomValue(0, 359);
+        asteroids[i].tint = WHITE;
+        asteroids[i].rect = (Rectangle) {0, 0, (float) asteroidTexture.width, (float) asteroidTexture.height};
+    }
 
     Texture2D background = LoadTexture("../resources/darkPurple.png");
     Rectangle backgroundRect = {0, 0, (float) background.width, (float) background.height};
     Rectangle backgroundDestRect = {0, 0, (float)screenWidth, (float)screenHeight};
     Rectangle destRect;
     Rectangle bulletDestRect;
+    Rectangle asteroidDestRect;
     Vector2 origin = {(float) player.tex.width/2, (float) player.tex.height/2};
 
     float frameTime;
@@ -178,19 +184,30 @@ int main(void)
             }
         }
 
+        for (int i = 0; i < MAX_ASTEROIDS; ++i)
+        {
+            asteroids[i].position = UpdatePosition(&asteroids[i].position, &asteroids[i].velocity, frameTime);
+        }
+
         // ----------------------------------------------
         // Drawing logic
         // ----------------------------------------------
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
-        DrawTextureTiled(background, backgroundRect, backgroundDestRect, (Vector2) {0, 0}, 0.0f, 1.0f, WHITE);
+        DrawTextureTiled(background, backgroundRect, backgroundDestRect, (Vector2){0, 0}, 0.0f, 1.0f, WHITE);
         DrawTexturePro(player.tex, player.rect, destRect, origin, player.rotation, player.tint);
 
         for (int i = 0; i < MAX_BULLETS; i++)
         {
             bulletDestRect = (Rectangle){bullets[i].position.x, bullets[i].position.y, (float) bulletTexture.width, (float) bulletTexture.height};
             if (bullets[i].visible) DrawTexturePro(bulletTexture, bullets[i].rect, bulletDestRect, origin, bullets[i].rotation, bullets[i].tint);
+        }
+
+        for (int i = 0; i < MAX_ASTEROIDS; ++i)
+        {
+            asteroidDestRect = (Rectangle){asteroids[i].position.x, asteroids[i].position.y, (float) asteroidTexture.width, (float) asteroidTexture.height};
+            DrawTexturePro(asteroidTexture, asteroids[i].rect, asteroidDestRect, origin, asteroids[i].rotation, asteroids[i].tint);
         }
 
         if (debugMode)
