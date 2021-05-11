@@ -35,6 +35,7 @@ typedef struct Asteroid
     Vector2 position;
     Vector2 velocity;
     float rotation;
+    float scale;
     Rectangle rect;
     Color tint;
 } Asteroid;
@@ -62,6 +63,8 @@ int main(void)
 
     Player player = {0};
 	player = InitPlayer(screenWidth, screenHeight, &player);
+	Vector2 playerOrigin = {(float) player.tex.width/2, (float) player.tex.height/2};
+	Rectangle playerSourceRect = {0, 0, player.tex.width * player.scale, player.tex.height * player.scale};
 
 	Texture2D bulletTexture = LoadTexture("../resources/fire04.png");
     Bullet bullets[MAX_BULLETS];
@@ -70,6 +73,8 @@ int main(void)
     {
 		bullets[i] = InitBullet(&bullets[i], bulletTexture.width, bulletTexture.height);
     }
+	Rectangle bulletSourceRect = (Rectangle){0, 0, (float) bulletTexture.width, (float) bulletTexture.height};
+	Vector2 bulletOrigin = {bulletTexture.width/2, bulletTexture.height/2};
 
     int bulletIterator = 0;
 
@@ -80,14 +85,12 @@ int main(void)
     {
 		asteroids[i] = InitAsteroid(&asteroids[i], asteroidTexture.width, asteroidTexture.height, screenWidth, screenHeight);
     }
+	Rectangle asteroidSourceRect = (Rectangle){0, 0, (float) asteroidTexture.width, (float) asteroidTexture.height};
+	Vector2 asteroidOrigin = {asteroidTexture.width/2, asteroidTexture.height/2};
 
     Texture2D background = LoadTexture("../resources/darkPurple.png");
     Rectangle backgroundRect = {0, 0, (float) background.width, (float) background.height};
     Rectangle backgroundDestRect = {0, 0, (float)screenWidth, (float)screenHeight};
-    Rectangle destRect;
-    Rectangle bulletDestRect;
-    Rectangle asteroidDestRect;
-    Vector2 origin = {(float) player.tex.width/2, (float) player.tex.height/2};
 
     float frameTime;
 
@@ -121,14 +124,23 @@ int main(void)
 
         player.position = UpdatePosition(&player.position, &player.velocity, frameTime);
 
-        destRect = (Rectangle){player.position.x, player.position.y, (float) player.tex.width, (float) player.tex.height};
+        player.rect = (Rectangle){player.position.x, player.position.y, (float) player.tex.width * player.scale, (float) player.tex.height * player.scale};
 
         for (int i = 0; i < MAX_BULLETS; i++)
         {
             if (bullets[i].visible)
             {
                 bullets[i].position = UpdatePosition(&bullets[i].position, &bullets[i].velocity, frameTime);
+                bullets[i].rect = (Rectangle){bullets[i].position.x, bullets[i].position.y, bulletTexture.width * bullets[i].scale, bulletTexture.height * bullets[i].scale};
                 bullets[i].lifetime -= 1 * frameTime;
+
+	            for (int j = 0; j < MAX_ASTEROIDS; j++)
+	            {
+	            	if (CheckCollisionRecs(bullets[i].rect, asteroids[j].rect))
+		            {
+	            		asteroids[j].tint = RED;
+		            }
+	            }
 
                 if (bullets[i].lifetime <= 0)
                 {
@@ -141,6 +153,23 @@ int main(void)
         for (int i = 0; i < MAX_ASTEROIDS; ++i)
         {
             asteroids[i].position = UpdatePosition(&asteroids[i].position, &asteroids[i].velocity, frameTime);
+            asteroids[i].rect = (Rectangle){asteroids[i].position.x, asteroids[i].position.y, asteroidTexture.width * asteroids[i].scale, asteroidTexture.height * asteroids[i].scale};
+
+            if (CheckCollisionRecs(asteroids[i].rect, player.rect))
+            	player.tint = RED;
+
+            for (int j = 0; j < MAX_ASTEROIDS; j++)
+            {
+            	if (i != j)
+	            {
+            		if (CheckCollisionRecs(asteroids[i].rect, asteroids[j].rect))
+		            {
+            			// TODO: Rework collision logic
+            			asteroids[i].velocity = (Vector2){asteroids[i].velocity.x * -1, asteroids[i].velocity.y * -1};
+			            asteroids[j].velocity = (Vector2){asteroids[j].velocity.x * -1, asteroids[j].velocity.y * -1};
+		            }
+	            }
+            }
         }
 
         // ----------------------------------------------
@@ -150,18 +179,17 @@ int main(void)
 
         ClearBackground(RAYWHITE);
         DrawTextureTiled(background, backgroundRect, backgroundDestRect, (Vector2){0, 0}, 0.0f, 1.0f, WHITE);
-        DrawTexturePro(player.tex, player.rect, destRect, origin, player.rotation, player.tint);
+        DrawTexturePro(player.tex, playerSourceRect, player.rect, playerOrigin, player.rotation, player.tint);
 
         for (int i = 0; i < MAX_BULLETS; i++)
         {
-            bulletDestRect = (Rectangle){bullets[i].position.x, bullets[i].position.y, (float) bulletTexture.width, (float) bulletTexture.height};
-            if (bullets[i].visible) DrawTexturePro(bulletTexture, bullets[i].rect, bulletDestRect, origin, bullets[i].rotation, bullets[i].tint);
+            if (bullets[i].visible) DrawTexturePro(bulletTexture, bulletSourceRect, bullets[i].rect, Vector2Scale(bulletOrigin, bullets[i].scale), bullets[i].rotation, bullets[i].tint);
         }
 
         for (int i = 0; i < MAX_ASTEROIDS; ++i)
         {
-            asteroidDestRect = (Rectangle){asteroids[i].position.x, asteroids[i].position.y, (float) asteroidTexture.width, (float) asteroidTexture.height};
-            DrawTexturePro(asteroidTexture, asteroids[i].rect, asteroidDestRect, origin, asteroids[i].rotation, asteroids[i].tint);
+
+            DrawTexturePro(asteroidTexture, asteroidSourceRect, asteroids[i].rect, Vector2Scale(asteroidOrigin, asteroids[i].scale), asteroids[i].rotation, asteroids[i].tint);
         }
 
         if (debugMode)
@@ -220,6 +248,7 @@ Asteroid InitAsteroid(Asteroid *asteroid, const int texWidth, const int texHeigh
 	asteroid->rotation = GetRandomValue(0, 359);
 	asteroid->tint = WHITE;
 	asteroid->rect = (Rectangle) {0, 0, (float) texWidth, (float) texHeight};
+	asteroid->scale = 1;
 	return *asteroid;
 }
 
