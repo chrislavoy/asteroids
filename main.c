@@ -165,8 +165,20 @@ int main(void)
             		if (CheckCollisionRecs(asteroids[i].rect, asteroids[j].rect))
 		            {
             			// TODO: Rework collision logic
-            			asteroids[i].velocity = (Vector2){asteroids[i].velocity.x * -1, asteroids[i].velocity.y * -1};
-			            asteroids[j].velocity = (Vector2){asteroids[j].velocity.x * -1, asteroids[j].velocity.y * -1};
+//            			asteroids[i].velocity = (Vector2){asteroids[i].velocity.x * -1, asteroids[i].velocity.y * -1};
+//			            asteroids[j].velocity = (Vector2){asteroids[j].velocity.x * -1, asteroids[j].velocity.y * -1};
+//	                    Rectangle collisionRect = GetCollisionRec(asteroids[i].rect, asteroids[j].rect);
+//			            TraceLog(LOG_INFO, TextFormat("x: %f, y: %f, width: %f, height: %f", collisionRect.x, collisionRect.y, collisionRect.width, collisionRect.height));
+						if (asteroids[i].rect.x < asteroids[j].rect.x)
+						{
+							asteroids[i].velocity = (Vector2){-asteroids[i].velocity.x, asteroids[i].velocity.y};
+							asteroids[j].velocity = (Vector2){-asteroids[j].velocity.x, asteroids[j].velocity.y};
+						}
+						else
+						{
+							asteroids[i].velocity = (Vector2){asteroids[i].velocity.x, -asteroids[i].velocity.y};
+							asteroids[j].velocity = (Vector2){asteroids[j].velocity.x, -asteroids[j].velocity.y};
+						}
 		            }
 	            }
             }
@@ -179,16 +191,21 @@ int main(void)
 
         ClearBackground(RAYWHITE);
         DrawTextureTiled(background, backgroundRect, backgroundDestRect, (Vector2){0, 0}, 0.0f, 1.0f, WHITE);
+//	    DrawRectangleRec(player.rect, BLUE);
         DrawTexturePro(player.tex, playerSourceRect, player.rect, playerOrigin, player.rotation, player.tint);
 
         for (int i = 0; i < MAX_BULLETS; i++)
         {
-            if (bullets[i].visible) DrawTexturePro(bulletTexture, bulletSourceRect, bullets[i].rect, Vector2Scale(bulletOrigin, bullets[i].scale), bullets[i].rotation, bullets[i].tint);
+	        if (bullets[i].visible)
+	        {
+//		        DrawRectangleRec(bullets[i].rect, BLUE);
+		        DrawTexturePro(bulletTexture, bulletSourceRect, bullets[i].rect, Vector2Scale(bulletOrigin, bullets[i].scale), bullets[i].rotation, bullets[i].tint);
+	        }
         }
 
         for (int i = 0; i < MAX_ASTEROIDS; ++i)
         {
-
+//	        DrawRectangleRec(asteroids[i].rect, BLUE);
             DrawTexturePro(asteroidTexture, asteroidSourceRect, asteroids[i].rect, Vector2Scale(asteroidOrigin, asteroids[i].scale), asteroids[i].rotation, asteroids[i].tint);
         }
 
@@ -202,6 +219,7 @@ int main(void)
             DrawText(TextFormat("Bullet Iterator: %d", bulletIterator), 5, 100, 20, RAYWHITE);
             DrawLineV(player.position, Vector2Add(player.position, Vector2Scale(player.velocity, 5)), GREEN);
         }
+
 
         EndDrawing();
     }
