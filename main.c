@@ -1,55 +1,11 @@
 #include "raylib.h"
 #include "raymath.h"
+#include "utils.h"
 
-#define MAX_ASTEROIDS 4
+//#define MAX_ASTEROIDS 4
+#define MAX_ASTEROIDS 0
 #define MAX_BULLETS 20
 #define BULLET_LIFETIME 0.8f
-
-typedef struct Player
-{
-    Vector2 position;
-    Vector2 velocity;
-    Vector2 acceleration;
-    float rotation;
-    float scale;
-    float movementSpeed;
-    Texture2D tex;
-    Rectangle rect;
-    Color tint;
-} Player;
-
-typedef struct Bullet {
-    Vector2 position;
-    Vector2 velocity;
-    float rotation;
-    float scale;
-    float movementSpeed;
-    float lifetime;
-    Rectangle rect;
-    Color tint;
-    bool visible;
-} Bullet;
-
-typedef struct Asteroid
-{
-    Vector2 position;
-    Vector2 velocity;
-    float rotation;
-    float scale;
-    Rectangle rect;
-    Color tint;
-} Asteroid;
-
-
-// ----------------------------------------------
-// Forward declaring functions
-// ----------------------------------------------
-Player InitPlayer(const int screenWidth, const int screenHeight, Player *player);
-Bullet InitBullet(Bullet *bullet, const int texWidth, const int texHeight);
-Asteroid InitAsteroid(Asteroid *asteroid, const int texWidth, const int texHeight, const int screenWidth, const int screenHeight);
-void ScreenLoop(Vector2 *position);
-void Shoot(Player *player, Bullet *bullet);
-Vector2 UpdatePosition(Vector2 *position, Vector2 *velocity, float frameTime);
 
 int main(void)
 {
@@ -63,8 +19,9 @@ int main(void)
 
     Player player = {0};
 	player = InitPlayer(screenWidth, screenHeight, &player);
-	Vector2 playerOrigin = {(float) player.tex.width/2, (float) player.tex.height/2};
-	Rectangle playerSourceRect = {0, 0, player.tex.width * player.scale, player.tex.height * player.scale};
+//	Vector2 playerOrigin = {(float) player.tex.width/2 * player.scale, (float) player.tex.height/2 * player.scale};
+//	Vector2 playerOrigin = {0, 0};
+//	Rectangle playerSourceRect = {0, 0, player.tex.width * player.scale, player.tex.height * player.scale};
 
 	Texture2D bulletTexture = LoadTexture("../resources/fire04.png");
     Bullet bullets[MAX_BULLETS];
@@ -124,14 +81,16 @@ int main(void)
 
         player.position = UpdatePosition(&player.position, &player.velocity, frameTime);
 
-        player.rect = (Rectangle){player.position.x, player.position.y, (float) player.tex.width * player.scale, (float) player.tex.height * player.scale};
+	    player.rect = UpdateRectangle(&player.position, player.tex, player.scale);
+//        player.rect = (Rectangle){player.position.x, player.position.y, (float) player.tex.width * player.scale, (float) player.tex.height * player.scale};
 
         for (int i = 0; i < MAX_BULLETS; i++)
         {
             if (bullets[i].visible)
             {
                 bullets[i].position = UpdatePosition(&bullets[i].position, &bullets[i].velocity, frameTime);
-                bullets[i].rect = (Rectangle){bullets[i].position.x, bullets[i].position.y, bulletTexture.width * bullets[i].scale, bulletTexture.height * bullets[i].scale};
+	            bullets[i].rect = UpdateRectangle(&bullets[i].position, bulletTexture, bullets[i].scale);
+//                bullets[i].rect = (Rectangle){bullets[i].position.x, bullets[i].position.y, bulletTexture.width * bullets[i].scale, bulletTexture.height * bullets[i].scale};
                 bullets[i].lifetime -= 1 * frameTime;
 
 	            for (int j = 0; j < MAX_ASTEROIDS; j++)
@@ -153,7 +112,8 @@ int main(void)
         for (int i = 0; i < MAX_ASTEROIDS; ++i)
         {
             asteroids[i].position = UpdatePosition(&asteroids[i].position, &asteroids[i].velocity, frameTime);
-            asteroids[i].rect = (Rectangle){asteroids[i].position.x, asteroids[i].position.y, asteroidTexture.width * asteroids[i].scale, asteroidTexture.height * asteroids[i].scale};
+	        asteroids[i].rect = UpdateRectangle(&asteroids[i].position, asteroidTexture, asteroids[i].scale);
+//            asteroids[i].rect = (Rectangle){asteroids[i].position.x, asteroids[i].position.y, asteroidTexture.width * asteroids[i].scale, asteroidTexture.height * asteroids[i].scale};
 
             if (CheckCollisionRecs(asteroids[i].rect, player.rect))
             	player.tint = RED;
@@ -191,21 +151,23 @@ int main(void)
 
         ClearBackground(RAYWHITE);
         DrawTextureTiled(background, backgroundRect, backgroundDestRect, (Vector2){0, 0}, 0.0f, 1.0f, WHITE);
-//	    DrawRectangleRec(player.rect, BLUE);
-        DrawTexturePro(player.tex, playerSourceRect, player.rect, playerOrigin, player.rotation, player.tint);
+	    DrawRectangleRec(player.rect, BLUE);
+//        DrawTexturePro(player.tex, playerSourceRect, player.rect, playerOrigin, player.rotation, player.tint);
+	    DrawTextureEx(player.tex, player.position, player.rotation, player.scale, player.tint);
+//	    DrawTexturePro(player.tex, playerSourceRect, player.rect, Vector2Zero(), player.rotation, player.tint);
 
         for (int i = 0; i < MAX_BULLETS; i++)
         {
 	        if (bullets[i].visible)
 	        {
-//		        DrawRectangleRec(bullets[i].rect, BLUE);
+		        DrawRectangleRec(bullets[i].rect, BLUE);
 		        DrawTexturePro(bulletTexture, bulletSourceRect, bullets[i].rect, Vector2Scale(bulletOrigin, bullets[i].scale), bullets[i].rotation, bullets[i].tint);
 	        }
         }
 
         for (int i = 0; i < MAX_ASTEROIDS; ++i)
         {
-//	        DrawRectangleRec(asteroids[i].rect, BLUE);
+	        DrawRectangleRec(asteroids[i].rect, BLUE);
             DrawTexturePro(asteroidTexture, asteroidSourceRect, asteroids[i].rect, Vector2Scale(asteroidOrigin, asteroids[i].scale), asteroids[i].rotation, asteroids[i].tint);
         }
 
@@ -215,11 +177,12 @@ int main(void)
             DrawText(TextFormat("Player Pos: (%.2f, %.2f)", player.position.x, player.position.y), 5, 20, 20, RAYWHITE);
             DrawText(TextFormat("Player Velocity: (%.2f, %.2f)", player.velocity.x, player.velocity.y), 5, 40, 20, RAYWHITE);
             DrawText(TextFormat("Player Acceleration: (%.2f, %.2f)", player.acceleration.x, player.acceleration.y), 5, 60, 20, RAYWHITE);
-            DrawText(TextFormat("Player Rotation: %.2f", player.rotation), 5, 80, 20, RAYWHITE);
-            DrawText(TextFormat("Bullet Iterator: %d", bulletIterator), 5, 100, 20, RAYWHITE);
+	        DrawText(TextFormat("Player Rectangle: (%.2f, %.2f, %.2f, %.2f", player.rect.x, player.rect.y, player.rect.width, player.rect.height), 5, 80, 20, RAYWHITE);
+            DrawText(TextFormat("Player Rotation: %.2f", player.rotation), 5, 100, 20, RAYWHITE);
+            DrawText(TextFormat("Bullet Iterator: %d", bulletIterator), 5, 120, 20, RAYWHITE);
             DrawLineV(player.position, Vector2Add(player.position, Vector2Scale(player.velocity, 5)), GREEN);
+	        DrawCircle(screenWidth/2, screenHeight/2, 1, RED);
         }
-
 
         EndDrawing();
     }
@@ -227,78 +190,4 @@ int main(void)
     CloseWindow();
 
     return 0;
-}
-
-Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
-{
-	player->position = (Vector2) {(float)screenWidth / 2, (float)screenHeight / 2};
-	player->acceleration = Vector2Zero();
-	player->velocity = Vector2Zero();
-	player->rotation = 0.0f;
-	player->tint = WHITE;
-	player->tex = LoadTexture("../resources/playerShip.png");
-	player->rect = (Rectangle) {0, 0, (float) (*player).tex.width, (float) (*player).tex.height};
-	player->scale = 1.0f;
-	player->movementSpeed = 5.0f;
-	return *player;
-}
-
-Bullet InitBullet(Bullet *bullet, const int texWidth, const int texHeight)
-{
-	bullet->position = (Vector2){0, 0};
-	bullet->velocity = (Vector2){0, 0};
-	bullet->rotation = 0;
-	bullet->scale = 1.0f;
-	bullet->movementSpeed = 1000.0f;
-	bullet->lifetime = BULLET_LIFETIME;
-	bullet->rect = (Rectangle) {0, 0, (float)texWidth, (float)texHeight};
-	bullet->tint = WHITE;
-	bullet->visible = false;
-	return *bullet;
-}
-
-Asteroid InitAsteroid(Asteroid *asteroid, const int texWidth, const int texHeight, const int screenWidth, const int screenHeight)
-{
-	const float movementSpeed = 150;
-
-	asteroid->position = (Vector2){GetRandomValue(0, screenWidth), GetRandomValue(0, screenHeight)};
-	asteroid->velocity = (Vector2){GetRandomValue(-movementSpeed, movementSpeed), GetRandomValue(-movementSpeed, movementSpeed)};
-	asteroid->rotation = GetRandomValue(0, 359);
-	asteroid->tint = WHITE;
-	asteroid->rect = (Rectangle) {0, 0, (float) texWidth, (float) texHeight};
-	asteroid->scale = 1;
-	return *asteroid;
-}
-
-void ScreenLoop(Vector2 *position)
-{
-	const float screenWidth = (float) GetScreenWidth();
-	const float screenHeight = (float) GetScreenHeight();
-	const float x_offset = 50.0f;
-	const float y_offset = 40.0f;
-
-	if (position->x <= 0 - x_offset) position->x = screenWidth + x_offset;
-	else if (position->x >= screenWidth + x_offset) position->x = 0 - x_offset;
-	if (position->y <= 0 - y_offset) position->y = screenHeight + y_offset;
-	else if (position->y >= screenHeight + y_offset) position->y = 0 - y_offset;
-}
-
-void Shoot(Player *player, Bullet *bullet) {
-	bullet->position = player->position;
-	bullet->rotation = player->rotation;
-	bullet->velocity = player->velocity;
-	bullet->velocity = Vector2Add(Vector2Scale(Vector2Rotate((Vector2){0, -1}, player->rotation), bullet->movementSpeed), bullet->velocity);
-	bullet->visible = true;
-}
-
-Vector2 UpdatePosition(Vector2 *position, Vector2 *velocity, float frameTime)
-{
-	Vector2 newPos = (Vector2){
-			position->x + (velocity->x * frameTime),
-			position->y + (velocity->y * frameTime)
-	};
-
-	ScreenLoop(&newPos);
-
-	return newPos;
 }
