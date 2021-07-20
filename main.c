@@ -2,8 +2,7 @@
 #include "raymath.h"
 #include "utils.h"
 
-//#define MAX_ASTEROIDS 4
-#define MAX_ASTEROIDS 0
+#define MAX_ASTEROIDS 1
 #define MAX_BULLETS 20
 #define BULLET_LIFETIME 0.8f
 
@@ -58,91 +57,16 @@ int main(void)
         // ----------------------------------------------
         frameTime = GetFrameTime();
 
-        player.acceleration = (Vector2){0, 0};
-
         if (IsKeyPressed(KEY_F1)) debugMode = !debugMode;
 
-        if (IsKeyDown(KEY_W))
-            player.acceleration = Vector2Scale(Vector2Rotate((Vector2){0, -1}, player.rotation), player.movementSpeed);
-        if (IsKeyDown(KEY_S))
-            player.acceleration = Vector2Scale(Vector2Rotate((Vector2){0, 1}, player.rotation), player.movementSpeed);
-        if (IsKeyDown(KEY_A)) player.rotation -= 5;
-        if (IsKeyDown(KEY_D)) player.rotation += 5;
+        player.acceleration = (Vector2){0, 0};
 
-        if (IsKeyDown(KEY_X)) player.velocity = (Vector2){0, 0};
-
-        if (IsKeyPressed(KEY_SPACE))
-        {
-            bulletIterator = (bulletIterator + 1) % ((int)MAX_BULLETS - 1);
-            Shoot(&player, &bullets[bulletIterator]);
-        }
-
-        player.velocity = Vector2Add(player.velocity, player.acceleration);
-
-        player.position = UpdatePosition(&player.position, &player.velocity, frameTime);
-
-	    player.rect = UpdateRectangle(&player.position, player.tex, player.scale);
+        UpdatePlayer(&player, bulletIterator, bullets, MAX_BULLETS, frameTime);
 //        player.rect = (Rectangle){player.position.x, player.position.y, (float) player.tex.width * player.scale, (float) player.tex.height * player.scale};
 
-        for (int i = 0; i < MAX_BULLETS; i++)
-        {
-            if (bullets[i].visible)
-            {
-                bullets[i].position = UpdatePosition(&bullets[i].position, &bullets[i].velocity, frameTime);
-	            bullets[i].rect = UpdateRectangle(&bullets[i].position, bulletTexture, bullets[i].scale);
-//                bullets[i].rect = (Rectangle){bullets[i].position.x, bullets[i].position.y, bulletTexture.width * bullets[i].scale, bulletTexture.height * bullets[i].scale};
-                bullets[i].lifetime -= 1 * frameTime;
+        UpdateBullets(bullets, asteroids, bulletTexture, MAX_BULLETS, BULLET_LIFETIME, MAX_ASTEROIDS, frameTime);
 
-	            for (int j = 0; j < MAX_ASTEROIDS; j++)
-	            {
-	            	if (CheckCollisionRecs(bullets[i].rect, asteroids[j].rect))
-		            {
-	            		asteroids[j].tint = RED;
-		            }
-	            }
-
-                if (bullets[i].lifetime <= 0)
-                {
-                    bullets[i].visible = false;
-                    bullets[i].lifetime = BULLET_LIFETIME;
-                }
-            }
-        }
-
-        for (int i = 0; i < MAX_ASTEROIDS; ++i)
-        {
-            asteroids[i].position = UpdatePosition(&asteroids[i].position, &asteroids[i].velocity, frameTime);
-	        asteroids[i].rect = UpdateRectangle(&asteroids[i].position, asteroidTexture, asteroids[i].scale);
-//            asteroids[i].rect = (Rectangle){asteroids[i].position.x, asteroids[i].position.y, asteroidTexture.width * asteroids[i].scale, asteroidTexture.height * asteroids[i].scale};
-
-            if (CheckCollisionRecs(asteroids[i].rect, player.rect))
-            	player.tint = RED;
-
-            for (int j = 0; j < MAX_ASTEROIDS; j++)
-            {
-            	if (i != j)
-	            {
-            		if (CheckCollisionRecs(asteroids[i].rect, asteroids[j].rect))
-		            {
-            			// TODO: Rework collision logic
-//            			asteroids[i].velocity = (Vector2){asteroids[i].velocity.x * -1, asteroids[i].velocity.y * -1};
-//			            asteroids[j].velocity = (Vector2){asteroids[j].velocity.x * -1, asteroids[j].velocity.y * -1};
-//	                    Rectangle collisionRect = GetCollisionRec(asteroids[i].rect, asteroids[j].rect);
-//			            TraceLog(LOG_INFO, TextFormat("x: %f, y: %f, width: %f, height: %f", collisionRect.x, collisionRect.y, collisionRect.width, collisionRect.height));
-						if (asteroids[i].rect.x < asteroids[j].rect.x)
-						{
-							asteroids[i].velocity = (Vector2){-asteroids[i].velocity.x, asteroids[i].velocity.y};
-							asteroids[j].velocity = (Vector2){-asteroids[j].velocity.x, asteroids[j].velocity.y};
-						}
-						else
-						{
-							asteroids[i].velocity = (Vector2){asteroids[i].velocity.x, -asteroids[i].velocity.y};
-							asteroids[j].velocity = (Vector2){asteroids[j].velocity.x, -asteroids[j].velocity.y};
-						}
-		            }
-	            }
-            }
-        }
+        UpdateAsteroids(asteroids, MAX_ASTEROIDS, &player, asteroidTexture, frameTime);
 
         // ----------------------------------------------
         // Drawing logic
@@ -151,10 +75,11 @@ int main(void)
 
         ClearBackground(RAYWHITE);
         DrawTextureTiled(background, backgroundRect, backgroundDestRect, (Vector2){0, 0}, 0.0f, 1.0f, WHITE);
-	    DrawRectangleRec(player.rect, BLUE);
-//        DrawTexturePro(player.tex, playerSourceRect, player.rect, playerOrigin, player.rotation, player.tint);
-	    DrawTextureEx(player.tex, player.position, player.rotation, player.scale, player.tint);
+
+//	    DrawTextureEx(player.tex, player.position, player.rotation, player.scale, player.tint);
 //	    DrawTexturePro(player.tex, playerSourceRect, player.rect, Vector2Zero(), player.rotation, player.tint);
+
+        DrawPlayer(&player);
 
         for (int i = 0; i < MAX_BULLETS; i++)
         {

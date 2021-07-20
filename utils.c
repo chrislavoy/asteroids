@@ -6,20 +6,6 @@
 #include "raylib.h"
 #include "raymath.h"
 
-Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
-{
-	player->position = (Vector2) {(float)screenWidth / 2, (float)screenHeight / 2};
-	player->acceleration = Vector2Zero();
-	player->velocity = Vector2Zero();
-	player->rotation = 0.0f;
-	player->tint = WHITE;
-	player->tex = LoadTexture("../resources/playerShip.png");
-	player->rect = (Rectangle) {0, 0, (float) (*player).tex.width, (float) (*player).tex.height};
-	player->scale = 1.0f;
-	player->movementSpeed = 5.0f;
-	return *player;
-}
-
 Bullet InitBullet(Bullet *bullet, const int texWidth, const int texHeight)
 {
 	bullet->position = (Vector2){0, 0};
@@ -93,4 +79,70 @@ Rectangle UpdateRectangle(Vector2 *position, Texture2D tex, float scale)
 //		tex.width * scale,
 //		tex.height * scale
 //	};
+}
+
+void UpdateBullets(Bullet *bullets, Asteroid *asteroids, Texture2D bulletTexture, int maxBullets, float bulletLifetime, int maxAsteroids, float frameTime)
+{
+    for (int i = 0; i < maxBullets; i++)
+    {
+        if (bullets[i].visible)
+        {
+            bullets[i].position = UpdatePosition(&bullets[i].position, &bullets[i].velocity, frameTime);
+            bullets[i].rect = UpdateRectangle(&bullets[i].position, bulletTexture, bullets[i].scale);
+//                bullets[i].rect = (Rectangle){bullets[i].position.x, bullets[i].position.y, bulletTexture.width * bullets[i].scale, bulletTexture.height * bullets[i].scale};
+            bullets[i].lifetime -= 1 * frameTime;
+
+            for (int j = 0; j < maxAsteroids; j++)
+            {
+                if (CheckCollisionRecs(bullets[i].rect, asteroids[j].rect))
+                {
+                    asteroids[j].tint = RED;
+                }
+            }
+
+            if (bullets[i].lifetime <= 0)
+            {
+                bullets[i].visible = false;
+                bullets[i].lifetime = bulletLifetime;
+            }
+        }
+    }
+}
+
+void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Texture2D asteroidTexture, float frameTime)
+{
+    for (int i = 0; i < maxAsteroids; ++i)
+    {
+        asteroids[i].position = UpdatePosition(&asteroids[i].position, &asteroids[i].velocity, frameTime);
+        asteroids[i].rect = UpdateRectangle(&asteroids[i].position, asteroidTexture, asteroids[i].scale);
+//            asteroids[i].rect = (Rectangle){asteroids[i].position.x, asteroids[i].position.y, asteroidTexture.width * asteroids[i].scale, asteroidTexture.height * asteroids[i].scale};
+
+        if (CheckCollisionRecs(asteroids[i].rect, player->rect))
+            player->tint = RED;
+
+        for (int j = 0; j < maxAsteroids; j++)
+        {
+            if (i != j)
+            {
+                if (CheckCollisionRecs(asteroids[i].rect, asteroids[j].rect))
+                {
+                    // TODO: Rework collision logic
+//            			asteroids[i].velocity = (Vector2){asteroids[i].velocity.x * -1, asteroids[i].velocity.y * -1};
+//			            asteroids[j].velocity = (Vector2){asteroids[j].velocity.x * -1, asteroids[j].velocity.y * -1};
+//	                    Rectangle collisionRect = GetCollisionRec(asteroids[i].rect, asteroids[j].rect);
+//			            TraceLog(LOG_INFO, TextFormat("x: %f, y: %f, width: %f, height: %f", collisionRect.x, collisionRect.y, collisionRect.width, collisionRect.height));
+                    if (asteroids[i].rect.x < asteroids[j].rect.x)
+                    {
+                        asteroids[i].velocity = (Vector2){-asteroids[i].velocity.x, asteroids[i].velocity.y};
+                        asteroids[j].velocity = (Vector2){-asteroids[j].velocity.x, asteroids[j].velocity.y};
+                    }
+                    else
+                    {
+                        asteroids[i].velocity = (Vector2){asteroids[i].velocity.x, -asteroids[i].velocity.y};
+                        asteroids[j].velocity = (Vector2){asteroids[j].velocity.x, -asteroids[j].velocity.y};
+                    }
+                }
+            }
+        }
+    }
 }
