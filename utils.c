@@ -97,8 +97,11 @@ void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Text
 //                        asteroids[i].velocity = (Vector2){asteroids[i].velocity.x, -asteroids[i].velocity.y};
 //                        asteroids[j].velocity = (Vector2){asteroids[j].velocity.x, -asteroids[j].velocity.y};
 //                    }
-                    asteroids[i].velocity = Vector2Reflect(asteroids[i].velocity, asteroids[j].velocity);
-                    asteroids[j].velocity = Vector2Reflect(asteroids[j].velocity, asteroids[i].velocity);
+//                    asteroids[i].velocity = Vector2Reflect(asteroids[i].velocity, asteroids[j].velocity);
+//                    asteroids[j].velocity = Vector2Reflect(asteroids[j].velocity, asteroids[i].velocity);
+
+                    asteroids[i].velocity = Vector2Rotate(asteroids[i].velocity, Vector2Angle(asteroids[i].velocity, asteroids[j].velocity));
+                    asteroids[j].velocity = Vector2Rotate(asteroids[j].velocity, Vector2Angle(asteroids[j].velocity, asteroids[i].velocity));
                 }
             }
         }

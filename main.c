@@ -80,14 +80,12 @@ int main(void)
     Rectangle backgroundRect = {0, 0, (float) background.width, (float) background.height};
     Rectangle backgroundDestRect = {0, 0, (float)screenWidth, (float)screenHeight};
 
-    float frameTime;
-
     while (!WindowShouldClose())
     {
         // ----------------------------------------------
         // Update variables
         // ----------------------------------------------
-        frameTime = GetFrameTime();
+        float frameTime = GetFrameTime();
 
         if (IsKeyPressed(KEY_F1)) debugMode = !debugMode;
 
