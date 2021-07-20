@@ -13,13 +13,14 @@ typedef struct Player
     Vector2 velocity;
     Vector2 acceleration;
     float rotation;
-    float scale;
+//    float scale;
     float movementSpeed;
     Texture2D tex;
     Rectangle rect;
     Rectangle sourceRect;
     Vector2 origin;
     Color tint;
+    float colliderRadius;
 } Player;
 
 typedef struct Bullet {
@@ -32,6 +33,7 @@ typedef struct Bullet {
 	Rectangle rect;
 	Color tint;
 	bool visible;
+    float colliderRadius;
 } Bullet;
 
 typedef struct Asteroid
@@ -42,6 +44,8 @@ typedef struct Asteroid
 	float scale;
 	Rectangle rect;
 	Color tint;
+	float colliderRadius;
+	bool alive;
 } Asteroid;
 
 Player InitPlayer(const int screenWidth, const int screenHeight, Player *player);
@@ -55,5 +59,7 @@ void UpdatePlayer(Player *player, int bulletIterator, Bullet *bullets, int maxBu
 void UpdateBullets(Bullet *bullets, Asteroid *asteroids, Texture2D bulletTexture, int maxBullets, float bulletLifetime, int maxAsteroids, float frameTime);
 void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Texture2D asteroidTexture, float frameTime);
 void DrawPlayer(Player *player);
+void DrawBullets(Bullet *bullets, int maxBullets, Texture2D bulletTexture, Rectangle bulletSourceRect, Vector2 bulletOrigin);
+void DrawAsteroids(Asteroid *asteroids, int maxAsteroids, Texture2D asteroidTexture, Rectangle asteroidSourceRect, Vector2 asteroidOrigin);
 
 #endif //SPACE_SHOOTER_UTILS_H
