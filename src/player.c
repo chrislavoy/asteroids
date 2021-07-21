@@ -22,7 +22,7 @@ Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
     player->origin = (Vector2) {(float) player->tex.width/2, (float) player->tex.height/2};
     player->scale = 1.0f;
     player->sourceRect = (Rectangle) {0, 0, (float)player->tex.width, (float)player->tex.height};
-    player->movementSpeed = 5.0f;
+    player->movementSpeed = 250.0f;
     player->colliderRadius = 40.0f;
     player->shootCooldown = 0.0f;
     player->score = 0;
@@ -40,8 +40,8 @@ void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxB
 
         if (IsKeyDown(KEY_W)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, -1}, player->rotation), player->movementSpeed);
         if (IsKeyDown(KEY_S)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, 1}, player->rotation), player->movementSpeed);
-        if (IsKeyDown(KEY_A)) player->rotation -= 5;
-        if (IsKeyDown(KEY_D)) player->rotation += 5;
+        if (IsKeyDown(KEY_A)) player->rotation -= 180 * frameTime;
+        if (IsKeyDown(KEY_D)) player->rotation += 180 * frameTime;
         if (IsKeyDown(KEY_X)) player->velocity = (Vector2) {0, 0};
         if (IsKeyDown(KEY_SPACE) && player->shootCooldown <= 0)
         {
@@ -50,9 +50,12 @@ void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxB
             player->shootCooldown = SHOT_COOLDOWN;
         }
 
-        player->velocity = Vector2Add(player->velocity, player->acceleration);
+        player->velocity = Vector2Add(player->velocity, Vector2Scale(player->acceleration, frameTime));
         if (Vector2Length(player->velocity) > MAX_VELOCITY)
+        {
             player->velocity = Vector2Scale(Vector2Normalize(player->velocity), MAX_VELOCITY);
+            Vector2Scale(player->velocity, frameTime);
+        }
 
         player->position = UpdatePosition(&player->position, &player->velocity, frameTime);
         player->rect = UpdateRectangle(&player->position, player->tex, 1);

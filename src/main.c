@@ -87,7 +87,9 @@ int main(void)
             DrawLineV(player.position, Vector2Add(player.position, Vector2Scale(player.velocity, 2)), GREEN);
         }
 
-        DrawText(TextFormat("Score: %d", player.score), screenWidth/2 - 50, 20, 20, RAYWHITE);
+        DrawText(TextFormat("Score: %d", player.score), screenWidth/2 - 45, 20, 20, RAYWHITE);
+
+        if (!player.alive || !AnyAsteroidsAlive(asteroids, MAX_ASTEROIDS)) DrawText("Press 'R' to reset", GetScreenWidth()/3, GetScreenHeight()/2, 40, RAYWHITE);
 
         EndDrawing();
     }

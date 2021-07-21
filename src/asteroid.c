@@ -7,7 +7,7 @@
 
 Asteroid InitAsteroid(Asteroid *asteroid, const int texWidth, const int texHeight, const int screenWidth, const int screenHeight)
 {
-    const int movementSpeed = 50;
+    const int movementSpeed = 75;
 
     asteroid->position = (Vector2){(float)GetRandomValue(0, screenWidth), (float)GetRandomValue(0, screenHeight)};
     asteroid->velocity = (Vector2){(float)GetRandomValue(-movementSpeed, movementSpeed), (float)GetRandomValue(-movementSpeed, movementSpeed)};
@@ -85,4 +85,16 @@ void DrawAsteroids(Asteroid *asteroids, int maxAsteroids, Texture2D asteroidText
             if (debugMode) DrawCircleLines(asteroids[i].position.x, asteroids[i].position.y, asteroids[i].colliderRadius * asteroids[i].scale, GREEN);
         }
     }
+}
+
+bool AnyAsteroidsAlive(Asteroid *asteroids, int maxAsteroids)
+{
+    int aliveCount = 0;
+
+    for (int i = 0; i < maxAsteroids; ++i)
+    {
+        if (asteroids[i].alive) aliveCount++;
+    }
+
+    return aliveCount > 0;
 }
