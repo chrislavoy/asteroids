@@ -48,13 +48,14 @@ void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxB
     }
 
     player->velocity = Vector2Add(player->velocity, player->acceleration);
-    player->velocity.x = Clamp(player->velocity.x, -MAX_VELOCITY, MAX_VELOCITY);
-    player->velocity.y = Clamp(player->velocity.y, -MAX_VELOCITY, MAX_VELOCITY);
+    if (Vector2Length(player->velocity) > MAX_VELOCITY)
+        player->velocity = Vector2Scale(Vector2Normalize(player->velocity), MAX_VELOCITY);
 
     player->position = UpdatePosition(&player->position, &player->velocity, frameTime);
-
     player->rect = UpdateRectangle(&player->position, player->tex, 1);
-//    player->rect = (Rectangle) {0, 0, player->tex.width * player->scale, player->tex.height * player->scale};
+
+    if (player->rotation > 360) player->rotation -= 360.0f;
+    if (player->rotation < 0) player->rotation += 360.0f;
 }
 
 void DrawPlayer(Player *player, bool debugMode)

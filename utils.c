@@ -23,7 +23,7 @@ Bullet InitBullet(Bullet *bullet, const int texWidth, const int texHeight)
 
 Asteroid InitAsteroid(Asteroid *asteroid, const int texWidth, const int texHeight, const int screenWidth, const int screenHeight)
 {
-	const float movementSpeed = 150;
+	const float movementSpeed = 50;
 
 	asteroid->position = (Vector2){GetRandomValue(0, screenWidth), GetRandomValue(0, screenHeight)};
 	asteroid->velocity = (Vector2){GetRandomValue(-movementSpeed, movementSpeed), GetRandomValue(-movementSpeed, movementSpeed)};
@@ -59,7 +59,7 @@ void UpdateBullets(Bullet *bullets, Asteroid *asteroids, Player *player, Texture
                     {
                         asteroids[j].tint = RED;
                         asteroids[j].alive = false;
-                        bullets[i].lifetime = 0;
+                        bullets[i].visible = false;
                         player->score += 10;
                     }
                 }
@@ -68,7 +68,6 @@ void UpdateBullets(Bullet *bullets, Asteroid *asteroids, Player *player, Texture
             if (bullets[i].lifetime <= 0)
             {
                 bullets[i].visible = false;
-//                bullets[i].lifetime = BULLET_LIFETIME;
             }
         }
     }

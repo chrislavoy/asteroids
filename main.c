@@ -118,7 +118,6 @@ int main(void)
             DrawText(TextFormat("Bullet Iterator: %d", bulletIterator), 5, 120, 20, RAYWHITE);
             DrawText(TextFormat("Shot Cooldown: %f", player.shootCooldown), 5, 140, 20, RAYWHITE);
             DrawLineV(player.position, Vector2Add(player.position, Vector2Scale(player.velocity, 2)), GREEN);
-	        DrawCircle(screenWidth/2, screenHeight/2, 1, RED);
         }
 
         DrawText(TextFormat("Score: %d", player.score), screenWidth/2 - 50, 20, 20, RAYWHITE);
