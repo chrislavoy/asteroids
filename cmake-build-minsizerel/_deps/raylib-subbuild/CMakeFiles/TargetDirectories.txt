@@ -1,3 +1,0 @@
-C:/Code/asteroids/cmake-build-minsizerel/_deps/raylib-subbuild/CMakeFiles/raylib-populate.dir
-C:/Code/asteroids/cmake-build-minsizerel/_deps/raylib-subbuild/CMakeFiles/edit_cache.dir
-C:/Code/asteroids/cmake-build-minsizerel/_deps/raylib-subbuild/CMakeFiles/rebuild_cache.dir
