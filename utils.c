@@ -41,7 +41,7 @@ Asteroid InitAsteroid(Asteroid *asteroid, const int texWidth, const int texHeigh
 	return *asteroid;
 }
 
-void UpdateBullets(Bullet *bullets, Asteroid *asteroids, Texture2D bulletTexture, int maxBullets, float bulletLifetime, int maxAsteroids, float frameTime)
+void UpdateBullets(Bullet *bullets, Asteroid *asteroids, Player *player, Texture2D bulletTexture, int maxBullets, int maxAsteroids, float frameTime)
 {
     for (int i = 0; i < maxBullets; i++)
     {
@@ -53,17 +53,22 @@ void UpdateBullets(Bullet *bullets, Asteroid *asteroids, Texture2D bulletTexture
 
             for (int j = 0; j < maxAsteroids; j++)
             {
-                if (CheckCollisionCircles(bullets[i].position, bullets[i].colliderRadius, asteroids[j].position, asteroids[j].colliderRadius))
+                if (asteroids[j].alive)
                 {
-                    asteroids[j].tint = RED;
-                    asteroids[j].alive = false;
+                    if (CheckCollisionCircles(bullets[i].position, bullets[i].colliderRadius, asteroids[j].position, asteroids[j].colliderRadius))
+                    {
+                        asteroids[j].tint = RED;
+                        asteroids[j].alive = false;
+                        bullets[i].lifetime = 0;
+                        player->score += 10;
+                    }
                 }
             }
 
             if (bullets[i].lifetime <= 0)
             {
                 bullets[i].visible = false;
-                bullets[i].lifetime = bulletLifetime;
+//                bullets[i].lifetime = BULLET_LIFETIME;
             }
         }
     }

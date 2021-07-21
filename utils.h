@@ -13,7 +13,7 @@ typedef struct Player
     Vector2 velocity;
     Vector2 acceleration;
     float rotation;
-//    float scale;
+    float scale;
     float movementSpeed;
     Texture2D tex;
     Rectangle rect;
@@ -22,6 +22,7 @@ typedef struct Player
     Color tint;
     float colliderRadius;
     float shootCooldown;
+    int score;
 } Player;
 
 typedef struct Bullet {
@@ -58,7 +59,7 @@ void Shoot(Player *player, Bullet *bullet);
 Vector2 UpdatePosition(Vector2 *position, Vector2 *velocity, float frameTime);
 Rectangle UpdateRectangle(Vector2 *position, Texture2D tex, float scale);
 void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxBullets, float frameTime);
-void UpdateBullets(Bullet *bullets, Asteroid *asteroids, Texture2D bulletTexture, int maxBullets, float bulletLifetime, int maxAsteroids, float frameTime);
+void UpdateBullets(Bullet *bullets, Asteroid *asteroids, Player *player, Texture2D bulletTexture, int maxBullets, int maxAsteroids, float frameTime);
 void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Texture2D asteroidTexture, float frameTime);
 void DrawPlayer(Player *player, bool debugMode);
 void DrawBullets(Bullet *bullets, int maxBullets, Texture2D bulletTexture, Rectangle bulletSourceRect, Vector2 bulletOrigin, bool debugMode);

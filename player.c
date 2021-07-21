@@ -8,6 +8,7 @@
 
 #define MAX_VELOCITY 150.0f
 #define SHOT_COOLDOWN 0.2f
+#define BULLET_LIFETIME 0.8f
 
 Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
 {
@@ -17,14 +18,14 @@ Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
     player->rotation = 0.0f;
     player->tint = WHITE;
     player->tex = LoadTexture("../resources/playerShip.png");
-//    player->rect = (Rectangle) {0, 0, (float) (*player).tex.width * player->scale, (float) (*player).tex.height * player->scale};
+    player->rect = (Rectangle) {0, 0, (float) (*player).tex.width * player->scale, (float) (*player).tex.height * player->scale};
     player->origin = (Vector2) {(float) player->tex.width/2, (float) player->tex.height/2};
-//    player->origin = Vector2Zero();
-//    player->scale = 1.0f;
+    player->scale = 1.0f;
     player->sourceRect = (Rectangle) {0, 0, (float)player->tex.width, (float)player->tex.height};
     player->movementSpeed = 5.0f;
     player->colliderRadius = 40.0f;
     player->shootCooldown = 0.0f;
+    player->score = 0;
     return *player;
 }
 
@@ -68,4 +69,5 @@ void Shoot(Player *player, Bullet *bullet) {
     bullet->velocity = player->velocity;
     bullet->velocity = Vector2Add(Vector2Scale(Vector2Rotate((Vector2){0, -1}, player->rotation), bullet->movementSpeed), bullet->velocity);
     bullet->visible = true;
+    bullet->lifetime = BULLET_LIFETIME;
 }
