@@ -8,7 +8,7 @@
 #define MAX_VELOCITY 250.0f
 #define MAX_BULLETS 20
 #define SHOT_COOLDOWN 0.2f
-#define BULLET_LIFETIME 0.8f
+#define BULLET_LIFETIME 0.5f
 
 Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
 {
@@ -26,42 +26,49 @@ Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
     player->colliderRadius = 40.0f;
     player->shootCooldown = 0.0f;
     player->score = 0;
+    player->alive = true;
     return *player;
 }
 
 void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxBullets, float frameTime)
 {
-    player->acceleration = (Vector2) {0, 0};
-    player->shootCooldown -= 1 * frameTime;
-    if (player->shootCooldown <= 0) player->shootCooldown = 0;
-
-    if (IsKeyDown(KEY_W)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, -1}, player->rotation), player->movementSpeed);
-    if (IsKeyDown(KEY_S)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, 1}, player->rotation), player->movementSpeed);
-    if (IsKeyDown(KEY_A)) player->rotation -= 5;
-    if (IsKeyDown(KEY_D)) player->rotation += 5;
-    if (IsKeyDown(KEY_X)) player->velocity = (Vector2) {0, 0};
-    if (IsKeyDown(KEY_SPACE) && player->shootCooldown <= 0)
+    if (player->alive)
     {
-        *bulletIterator = (*bulletIterator + 1) % ((int)maxBullets - 1);
-        Shoot(player, &bullets[*bulletIterator]);
-        player->shootCooldown = SHOT_COOLDOWN;
+        player->acceleration = (Vector2) {0, 0};
+        player->shootCooldown -= 1 * frameTime;
+        if (player->shootCooldown <= 0) player->shootCooldown = 0;
+
+        if (IsKeyDown(KEY_W)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, -1}, player->rotation), player->movementSpeed);
+        if (IsKeyDown(KEY_S)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, 1}, player->rotation), player->movementSpeed);
+        if (IsKeyDown(KEY_A)) player->rotation -= 5;
+        if (IsKeyDown(KEY_D)) player->rotation += 5;
+        if (IsKeyDown(KEY_X)) player->velocity = (Vector2) {0, 0};
+        if (IsKeyDown(KEY_SPACE) && player->shootCooldown <= 0)
+        {
+            *bulletIterator = (*bulletIterator + 1) % ((int)maxBullets - 1);
+            Shoot(player, &bullets[*bulletIterator]);
+            player->shootCooldown = SHOT_COOLDOWN;
+        }
+
+        player->velocity = Vector2Add(player->velocity, player->acceleration);
+        if (Vector2Length(player->velocity) > MAX_VELOCITY)
+            player->velocity = Vector2Scale(Vector2Normalize(player->velocity), MAX_VELOCITY);
+
+        player->position = UpdatePosition(&player->position, &player->velocity, frameTime);
+        player->rect = UpdateRectangle(&player->position, player->tex, 1);
+
+        if (player->rotation > 360) player->rotation -= 360.0f;
+        if (player->rotation < 0) player->rotation += 360.0f;
     }
-
-    player->velocity = Vector2Add(player->velocity, player->acceleration);
-    if (Vector2Length(player->velocity) > MAX_VELOCITY)
-        player->velocity = Vector2Scale(Vector2Normalize(player->velocity), MAX_VELOCITY);
-
-    player->position = UpdatePosition(&player->position, &player->velocity, frameTime);
-    player->rect = UpdateRectangle(&player->position, player->tex, 1);
-
-    if (player->rotation > 360) player->rotation -= 360.0f;
-    if (player->rotation < 0) player->rotation += 360.0f;
 }
 
 void DrawPlayer(Player *player, bool debugMode)
 {
-    DrawTexturePro(player->tex, player->sourceRect, player->rect, player->origin, player->rotation, player->tint);
-    if (debugMode) DrawCircleLines((int) player->position.x, (int) player->position.y, player->colliderRadius, GREEN);
+    if (player->alive)
+    {
+        DrawTexturePro(player->tex, player->sourceRect, player->rect, player->origin, player->rotation, player->tint);
+        if (debugMode) DrawCircleLines((int) player->position.x, (int) player->position.y, player->colliderRadius, GREEN);
+    }
 }
 
 void Shoot(Player *player, Bullet *bullet) {

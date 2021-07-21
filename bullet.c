@@ -59,7 +59,7 @@ void DrawBullets(Bullet *bullets, int maxBullets, Texture2D bulletTexture, Recta
         if (bullets[i].visible)
         {
             DrawTexturePro(bulletTexture, bulletSourceRect, bullets[i].rect, Vector2Scale(bulletOrigin, bullets[i].scale), bullets[i].rotation, bullets[i].tint);
-            if (debugMode) DrawCircleLines(bullets[i].position.x, bullets[i].position.y, bullets[i].colliderRadius, GREEN);
+            if (debugMode) DrawCircleLines((int)bullets[i].position.x, (int)bullets[i].position.y, bullets[i].colliderRadius, GREEN);
         }
     }
 }

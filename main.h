@@ -21,6 +21,7 @@ typedef struct Player
     float colliderRadius;
     float shootCooldown;
     int score;
+    bool alive;
 } Player;
 
 typedef struct Bullet {

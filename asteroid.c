@@ -7,10 +7,10 @@
 
 Asteroid InitAsteroid(Asteroid *asteroid, const int texWidth, const int texHeight, const int screenWidth, const int screenHeight)
 {
-    const float movementSpeed = 50;
+    const int movementSpeed = 50;
 
     asteroid->position = (Vector2){(float)GetRandomValue(0, screenWidth), (float)GetRandomValue(0, screenHeight)};
-    asteroid->velocity = (Vector2){(float)GetRandomValue(-(int)movementSpeed, (int)movementSpeed), (float)GetRandomValue(-(int)movementSpeed, (int)movementSpeed)};
+    asteroid->velocity = (Vector2){(float)GetRandomValue(-movementSpeed, movementSpeed), (float)GetRandomValue(-movementSpeed, movementSpeed)};
     asteroid->rotation = (float)GetRandomValue(0, 359);
     asteroid->tint = WHITE;
     asteroid->rect = (Rectangle) {0, 0, (float) texWidth, (float) texHeight};
@@ -38,7 +38,9 @@ void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Text
             asteroids[i].rect = UpdateRectangle(&asteroids[i].position, asteroidTexture, asteroids[i].scale);
 
             if (CheckCollisionCircles(player->position, player->colliderRadius, asteroids[i].position, asteroids[i].colliderRadius))
-                player->tint = RED;
+            {
+                player->alive = false;
+            }
 
             for (int j = 0; j < maxAsteroids; j++)
             {
