@@ -7,6 +7,7 @@
 #include "utils.h"
 
 #define MAX_VELOCITY 150.0f
+#define SHOT_COOLDOWN 0.2f
 
 Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
 {
@@ -23,22 +24,26 @@ Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
     player->sourceRect = (Rectangle) {0, 0, (float)player->tex.width, (float)player->tex.height};
     player->movementSpeed = 5.0f;
     player->colliderRadius = 40.0f;
+    player->shootCooldown = 0.0f;
     return *player;
 }
 
 void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxBullets, float frameTime)
 {
     player->acceleration = (Vector2) {0, 0};
+    player->shootCooldown -= 1 * frameTime;
+    if (player->shootCooldown <= 0) player->shootCooldown = 0;
 
     if (IsKeyDown(KEY_W)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, -1}, player->rotation), player->movementSpeed);
     if (IsKeyDown(KEY_S)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, 1}, player->rotation), player->movementSpeed);
     if (IsKeyDown(KEY_A)) player->rotation -= 5;
     if (IsKeyDown(KEY_D)) player->rotation += 5;
     if (IsKeyDown(KEY_X)) player->velocity = (Vector2) {0, 0};
-    if (IsKeyPressed(KEY_SPACE))
+    if (IsKeyDown(KEY_SPACE) && player->shootCooldown <= 0)
     {
         *bulletIterator = (*bulletIterator + 1) % ((int)maxBullets - 1);
         Shoot(player, &bullets[*bulletIterator]);
+        player->shootCooldown = SHOT_COOLDOWN;
     }
 
     player->velocity = Vector2Add(player->velocity, player->acceleration);

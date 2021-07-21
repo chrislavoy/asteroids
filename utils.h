@@ -21,6 +21,7 @@ typedef struct Player
     Vector2 origin;
     Color tint;
     float colliderRadius;
+    float shootCooldown;
 } Player;
 
 typedef struct Bullet {

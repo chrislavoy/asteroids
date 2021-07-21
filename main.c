@@ -120,7 +120,8 @@ int main(void)
 	        DrawText(TextFormat("Player Rectangle: (%.2f, %.2f, %.2f, %.2f", player.rect.x, player.rect.y, player.rect.width, player.rect.height), 5, 80, 20, RAYWHITE);
             DrawText(TextFormat("Player Rotation: %.2f", player.rotation), 5, 100, 20, RAYWHITE);
             DrawText(TextFormat("Bullet Iterator: %d", bulletIterator), 5, 120, 20, RAYWHITE);
-            DrawLineV(player.position, Vector2Add(player.position, Vector2Scale(player.velocity, 5)), GREEN);
+            DrawText(TextFormat("Shot Cooldown: %f", player.shootCooldown), 5, 140, 20, RAYWHITE);
+            DrawLineV(player.position, Vector2Add(player.position, Vector2Scale(player.velocity, 2)), GREEN);
 	        DrawCircle(screenWidth/2, screenHeight/2, 1, RED);
         }
 
