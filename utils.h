@@ -46,6 +46,7 @@ typedef struct Asteroid
 	Color tint;
 	float colliderRadius;
 	bool alive;
+	int level;
 } Asteroid;
 
 Player InitPlayer(const int screenWidth, const int screenHeight, Player *player);
@@ -55,11 +56,11 @@ void ScreenLoop(Vector2 *position);
 void Shoot(Player *player, Bullet *bullet);
 Vector2 UpdatePosition(Vector2 *position, Vector2 *velocity, float frameTime);
 Rectangle UpdateRectangle(Vector2 *position, Texture2D tex, float scale);
-void UpdatePlayer(Player *player, int bulletIterator, Bullet *bullets, int maxBullets, float frameTime);
+void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxBullets, float frameTime);
 void UpdateBullets(Bullet *bullets, Asteroid *asteroids, Texture2D bulletTexture, int maxBullets, float bulletLifetime, int maxAsteroids, float frameTime);
 void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Texture2D asteroidTexture, float frameTime);
-void DrawPlayer(Player *player);
-void DrawBullets(Bullet *bullets, int maxBullets, Texture2D bulletTexture, Rectangle bulletSourceRect, Vector2 bulletOrigin);
-void DrawAsteroids(Asteroid *asteroids, int maxAsteroids, Texture2D asteroidTexture, Rectangle asteroidSourceRect, Vector2 asteroidOrigin);
+void DrawPlayer(Player *player, bool debugMode);
+void DrawBullets(Bullet *bullets, int maxBullets, Texture2D bulletTexture, Rectangle bulletSourceRect, Vector2 bulletOrigin, bool debugMode);
+void DrawAsteroids(Asteroid *asteroids, int maxAsteroids, Texture2D asteroidTexture, Rectangle asteroidSourceRect, Vector2 asteroidOrigin, bool debugMode);
 
 #endif //SPACE_SHOOTER_UTILS_H

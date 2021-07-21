@@ -91,7 +91,7 @@ int main(void)
 
         player.acceleration = (Vector2){0, 0};
 
-        UpdatePlayer(&player, bulletIterator, bullets, MAX_BULLETS, frameTime);
+        UpdatePlayer(&player, &bulletIterator, bullets, MAX_BULLETS, frameTime);
 
         UpdateBullets(bullets, asteroids, bulletTexture, MAX_BULLETS, BULLET_LIFETIME, MAX_ASTEROIDS, frameTime);
 
@@ -105,11 +105,11 @@ int main(void)
         ClearBackground(RAYWHITE);
         DrawTextureTiled(background, backgroundRect, backgroundDestRect, (Vector2){0, 0}, 0.0f, 1.0f, WHITE);
 
-        DrawPlayer(&player);
+        DrawPlayer(&player, debugMode);
 
-        DrawBullets(bullets, MAX_BULLETS, bulletTexture, bulletSourceRect, bulletOrigin);
+        DrawBullets(bullets, MAX_BULLETS, bulletTexture, bulletSourceRect, bulletOrigin, debugMode);
 
-        DrawAsteroids(asteroids, MAX_ASTEROIDS, asteroidTexture, asteroidSourceRect, asteroidOrigin);
+        DrawAsteroids(asteroids, MAX_ASTEROIDS, asteroidTexture, asteroidSourceRect, asteroidOrigin, debugMode);
 
         if (debugMode)
         {

@@ -26,7 +26,7 @@ Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
     return *player;
 }
 
-void UpdatePlayer(Player *player, int bulletIterator, Bullet *bullets, int maxBullets, float frameTime)
+void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxBullets, float frameTime)
 {
     player->acceleration = (Vector2) {0, 0};
 
@@ -37,8 +37,8 @@ void UpdatePlayer(Player *player, int bulletIterator, Bullet *bullets, int maxBu
     if (IsKeyDown(KEY_X)) player->velocity = (Vector2) {0, 0};
     if (IsKeyPressed(KEY_SPACE))
     {
-        bulletIterator = (bulletIterator + 1) % ((int)maxBullets - 1);
-        Shoot(player, &bullets[bulletIterator]);
+        *bulletIterator = (*bulletIterator + 1) % ((int)maxBullets - 1);
+        Shoot(player, &bullets[*bulletIterator]);
     }
 
     player->velocity = Vector2Add(player->velocity, player->acceleration);
@@ -51,10 +51,10 @@ void UpdatePlayer(Player *player, int bulletIterator, Bullet *bullets, int maxBu
 //    player->rect = (Rectangle) {0, 0, player->tex.width * player->scale, player->tex.height * player->scale};
 }
 
-void DrawPlayer(Player *player)
+void DrawPlayer(Player *player, bool debugMode)
 {
     DrawTexturePro(player->tex, player->sourceRect, player->rect, player->origin, player->rotation, player->tint);
-    DrawCircleLines((int) player->position.x, (int) player->position.y, player->colliderRadius, GREEN);
+    if (debugMode) DrawCircleLines((int) player->position.x, (int) player->position.y, player->colliderRadius, GREEN);
 }
 
 void Shoot(Player *player, Bullet *bullet) {

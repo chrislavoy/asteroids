@@ -33,6 +33,7 @@ Asteroid InitAsteroid(Asteroid *asteroid, const int texWidth, const int texHeigh
 	asteroid->scale = 1.0f;
     asteroid->colliderRadius = 35.0f;
     asteroid->alive = true;
+    asteroid->level = 3;
 
     if (Vector2Distance(asteroid->position, (Vector2){(float) screenWidth/2, (float) screenHeight/2}) < 200.0f)
         Vector2AddValue(asteroid->position, 200);
@@ -55,6 +56,7 @@ void UpdateBullets(Bullet *bullets, Asteroid *asteroids, Texture2D bulletTexture
                 if (CheckCollisionCircles(bullets[i].position, bullets[i].colliderRadius, asteroids[j].position, asteroids[j].colliderRadius))
                 {
                     asteroids[j].tint = RED;
+                    asteroids[j].alive = false;
                 }
             }
 
@@ -71,22 +73,26 @@ void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Text
 {
     for (int i = 0; i < maxAsteroids; ++i)
     {
-        if (IsKeyPressed(KEY_MINUS)) asteroids[i].scale -= 0.5f;
-        if (IsKeyPressed(KEY_EQUAL)) asteroids[i].scale += 0.5f;
-
-        asteroids[i].position = UpdatePosition(&asteroids[i].position, &asteroids[i].velocity, frameTime);
-        asteroids[i].rect = UpdateRectangle(&asteroids[i].position, asteroidTexture, asteroids[i].scale);
-
-        if (CheckCollisionCircles(player->position, player->colliderRadius, asteroids[i].position, asteroids[i].colliderRadius))
-            player->tint = RED;
-
-        for (int j = 0; j < maxAsteroids; j++)
+        if (asteroids[i].alive)
         {
-            if (i != j)
+            if (IsKeyPressed(KEY_MINUS)) asteroids[i].scale -= 0.5f;
+            if (IsKeyPressed(KEY_EQUAL)) asteroids[i].scale += 0.5f;
+
+            asteroids[i].position = UpdatePosition(&asteroids[i].position, &asteroids[i].velocity, frameTime);
+            asteroids[i].rect = UpdateRectangle(&asteroids[i].position, asteroidTexture, asteroids[i].scale);
+
+            if (CheckCollisionCircles(player->position, player->colliderRadius, asteroids[i].position, asteroids[i].colliderRadius))
+                player->tint = RED;
+
+            for (int j = 0; j < maxAsteroids; j++)
             {
-                if (CheckCollisionCircles(asteroids[i].position, asteroids[i].colliderRadius, asteroids[j].position, asteroids[j].colliderRadius))
+                if (i != j)
                 {
-                    // TODO: Rework collision logic
+                    if (asteroids[j].alive)
+                    {
+                        if (CheckCollisionCircles(asteroids[i].position, asteroids[i].colliderRadius, asteroids[j].position, asteroids[j].colliderRadius))
+                        {
+                            // TODO: Rework collision logic
 //                    if (asteroids[i].rect.x < asteroids[j].rect.x)
 //                    {
 //                        asteroids[i].velocity = (Vector2){-asteroids[i].velocity.x, asteroids[i].velocity.y};
@@ -100,32 +106,38 @@ void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Text
 //                    asteroids[i].velocity = Vector2Reflect(asteroids[i].velocity, asteroids[j].velocity);
 //                    asteroids[j].velocity = Vector2Reflect(asteroids[j].velocity, asteroids[i].velocity);
 
-                    asteroids[i].velocity = Vector2Rotate(asteroids[i].velocity, Vector2Angle(asteroids[i].velocity, asteroids[j].velocity));
-                    asteroids[j].velocity = Vector2Rotate(asteroids[j].velocity, Vector2Angle(asteroids[j].velocity, asteroids[i].velocity));
+                            asteroids[i].velocity = Vector2Rotate(asteroids[i].velocity, Vector2Angle(asteroids[i].velocity, asteroids[j].velocity));
+                            asteroids[j].velocity = Vector2Rotate(asteroids[j].velocity, Vector2Angle(asteroids[j].velocity, asteroids[i].velocity));
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-void DrawBullets(Bullet *bullets, int maxBullets, Texture2D bulletTexture, Rectangle bulletSourceRect, Vector2 bulletOrigin)
+void DrawBullets(Bullet *bullets, int maxBullets, Texture2D bulletTexture, Rectangle bulletSourceRect, Vector2 bulletOrigin, bool debugMode)
 {
     for (int i = 0; i < maxBullets; i++)
     {
         if (bullets[i].visible)
         {
             DrawTexturePro(bulletTexture, bulletSourceRect, bullets[i].rect, Vector2Scale(bulletOrigin, bullets[i].scale), bullets[i].rotation, bullets[i].tint);
-            DrawCircleLines(bullets[i].position.x, bullets[i].position.y, bullets[i].colliderRadius, GREEN);
+            if (debugMode) DrawCircleLines(bullets[i].position.x, bullets[i].position.y, bullets[i].colliderRadius, GREEN);
         }
     }
 }
 
-void DrawAsteroids(Asteroid *asteroids, int maxAsteroids, Texture2D asteroidTexture, Rectangle asteroidSourceRect, Vector2 asteroidOrigin)
+void DrawAsteroids(Asteroid *asteroids, int maxAsteroids, Texture2D asteroidTexture, Rectangle asteroidSourceRect, Vector2 asteroidOrigin, bool debugMode)
 {
     for (int i = 0; i < maxAsteroids; ++i)
     {
-        DrawTexturePro(asteroidTexture, asteroidSourceRect, asteroids[i].rect, asteroidOrigin, asteroids[i].rotation, asteroids[i].tint);
-        DrawCircleLines(asteroids[i].position.x, asteroids[i].position.y, asteroids[i].colliderRadius * asteroids[i].scale, GREEN);
+        if (asteroids[i].alive)
+        {
+            DrawTexturePro(asteroidTexture, asteroidSourceRect, asteroids[i].rect, asteroidOrigin, asteroids[i].rotation, asteroids[i].tint);
+
+            if (debugMode) DrawCircleLines(asteroids[i].position.x, asteroids[i].position.y, asteroids[i].colliderRadius * asteroids[i].scale, GREEN);
+        }
     }
 }
 
