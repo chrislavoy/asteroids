@@ -2,11 +2,11 @@
 // Created by chris on 7/19/2021.
 //
 
-#include "raylib.h"
-#include "raymath.h"
+#include "player.h"
 #include "utils.h"
 
-#define MAX_VELOCITY 150.0f
+#define MAX_VELOCITY 250.0f
+#define MAX_BULLETS 20
 #define SHOT_COOLDOWN 0.2f
 #define BULLET_LIFETIME 0.8f
 

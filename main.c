@@ -1,5 +1,9 @@
 #include "raylib.h"
 #include "raymath.h"
+#include "main.h"
+#include "bullet.h"
+#include "asteroid.h"
+#include "player.h"
 #include "utils.h"
 
 #define MAX_ASTEROIDS 20
@@ -16,15 +20,10 @@ int main(void)
     SetTargetFPS(60);
 
     Player player = {0};
-	player = InitPlayer(screenWidth, screenHeight, &player);
 
 	Texture2D bulletTexture = LoadTexture("../resources/fire04.png");
     Bullet bullets[MAX_BULLETS];
 
-    for (int i = 0; i < MAX_BULLETS; i++)
-    {
-		bullets[i] = InitBullet(&bullets[i], bulletTexture.width, bulletTexture.height);
-    }
 	Rectangle bulletSourceRect = (Rectangle){0, 0, (float) bulletTexture.width, (float) bulletTexture.height};
 	Vector2 bulletOrigin = {(float) bulletTexture.width/2, (float) bulletTexture.height/2};
 
@@ -33,48 +32,14 @@ int main(void)
     Texture2D asteroidTexture = LoadTexture("../resources/Meteors/meteorBrown_big1.png");
     Asteroid asteroids[MAX_ASTEROIDS];
 
-    for (int i = 0; i < MAX_ASTEROIDS; ++i)
-    {
-		asteroids[i] = InitAsteroid(&asteroids[i], asteroidTexture.width, asteroidTexture.height, screenWidth, screenHeight);
-    }
-
-    bool checkForCollisions = true;
-
-    while(checkForCollisions)
-    {
-        bool foundCollision = false;
-
-        for (int i = 0; i < MAX_ASTEROIDS; ++i) {
-            for (int j = 0; j < MAX_ASTEROIDS; ++j) {
-                if (i != j)
-                {
-                    if (Vector2Distance(asteroids[i].position, asteroids[j].position) < 100.0f)
-                    {
-                        asteroids[i].position.x += 200;
-                        asteroids[j].position.y += 200;
-                        foundCollision = true;
-                    }
-
-                    if (Vector2Distance(asteroids[i].position, (Vector2){(float) screenWidth/2, (float) screenHeight/2}) < 200.0f)
-                    {
-                        asteroids[i].position.x += 200;
-                        asteroids[j].position.y += 200;
-                        foundCollision = true;
-                    }
-                }
-            }
-        }
-
-        if (!foundCollision)
-            checkForCollisions = false;
-    }
-
 	Rectangle asteroidSourceRect = (Rectangle){0, 0, (float) asteroidTexture.width, (float) asteroidTexture.height};
 	Vector2 asteroidOrigin = {(float) asteroidTexture.width/2, (float) asteroidTexture.height/2};
 
     Texture2D background = LoadTexture("../resources/darkPurple.png");
     Rectangle backgroundRect = {0, 0, (float) background.width, (float) background.height};
     Rectangle backgroundDestRect = {0, 0, (float)screenWidth, (float)screenHeight};
+
+    ResetGame(&player, asteroids, bullets, bulletTexture, asteroidTexture);
 
     while (!WindowShouldClose())
     {
@@ -84,6 +49,8 @@ int main(void)
         float frameTime = GetFrameTime();
 
         if (IsKeyPressed(KEY_F1)) debugMode = !debugMode;
+
+        if (IsKeyPressed(KEY_R)) ResetGame(&player, asteroids, bullets, bulletTexture, asteroidTexture);
 
         player.acceleration = (Vector2){0, 0};
 

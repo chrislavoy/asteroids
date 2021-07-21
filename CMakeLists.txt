@@ -36,7 +36,7 @@ endif()
 
 # This is the main part:
 
-add_executable(${PROJECT_NAME} main.c utils.c utils.h player.c)
+add_executable(${PROJECT_NAME} main.c utils.c utils.h player.c bullet.h bullet.c asteroid.h asteroid.c player.h main.h)
 #set(raylib_VERBOSE 1)
 target_link_libraries(${PROJECT_NAME} raylib)
 
