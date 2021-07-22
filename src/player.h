@@ -13,5 +13,6 @@ Player InitPlayer(const int screenWidth, const int screenHeight, Player *player,
 void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxBullets, float frameTime);
 void DrawPlayer(Player *player, bool debugMode);
 void Shoot(Player *player, Bullet *bullet);
+void UnloadPlayer(Player *player);
 
 #endif //ASTEROIDS_PLAYER_H

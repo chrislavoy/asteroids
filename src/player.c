@@ -103,3 +103,8 @@ void Shoot(Player *player, Bullet *bullet) {
     bullet->visible = true;
     bullet->lifetime = BULLET_LIFETIME;
 }
+
+void UnloadPlayer(Player *player)
+{
+	UnloadTexture(player->tex);
+}

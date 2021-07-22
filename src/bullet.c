@@ -4,6 +4,7 @@
 
 #include "bullet.h"
 #include "utils.h"
+#include "asteroid.h"
 
 Bullet InitBullet(Bullet *bullet, const int texWidth, const int texHeight)
 {
@@ -40,6 +41,7 @@ void UpdateBullets(Bullet *bullets, struct Asteroid *asteroids, struct Player *p
                         asteroids[j].alive = false;
                         bullets[i].visible = false;
                         player->score += 10;
+	                    DecrementAsteroidCount();
                     }
                 }
             }

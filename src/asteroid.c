@@ -7,10 +7,12 @@
 #include "utils.h"
 
 const int movementSpeed = 75;
+int activeAsteroidCount = 0;
 
 Asteroid* InitAsteroids(int maxAsteroids, const int screenWidth, const int screenHeight, Texture2D *textures, int texCount)
 {
 	Asteroid *asteroids = (Asteroid*) calloc(maxAsteroids, sizeof(Asteroid));
+	activeAsteroidCount = maxAsteroids;
 
 	for (int i = 0; i < maxAsteroids; ++i)
 	{
@@ -60,19 +62,6 @@ void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, floa
                         if (CheckCollisionCircles(asteroids[i].position, asteroids[i].colliderRadius, asteroids[j].position, asteroids[j].colliderRadius))
                         {
                             // TODO: Rework collision logic
-//                    if (asteroids[i].rect.x < asteroids[j].rect.x)
-//                    {
-//                        asteroids[i].velocity = (Vector2){-asteroids[i].velocity.x, asteroids[i].velocity.y};
-//                        asteroids[j].velocity = (Vector2){-asteroids[j].velocity.x, asteroids[j].velocity.y};
-//                    }
-//                    else
-//                    {
-//                        asteroids[i].velocity = (Vector2){asteroids[i].velocity.x, -asteroids[i].velocity.y};
-//                        asteroids[j].velocity = (Vector2){asteroids[j].velocity.x, -asteroids[j].velocity.y};
-//                    }
-//                    asteroids[i].velocity = Vector2Reflect(asteroids[i].velocity, asteroids[j].velocity);
-//                    asteroids[j].velocity = Vector2Reflect(asteroids[j].velocity, asteroids[i].velocity);
-
                             asteroids[i].velocity = Vector2Rotate(asteroids[i].velocity, Vector2Angle(asteroids[i].velocity, asteroids[j].velocity));
                             asteroids[j].velocity = Vector2Rotate(asteroids[j].velocity, Vector2Angle(asteroids[j].velocity, asteroids[i].velocity));
                         }
@@ -96,16 +85,9 @@ void DrawAsteroids(Asteroid *asteroids, int maxAsteroids, bool debugMode)
     }
 }
 
-bool AnyAsteroidsAlive(Asteroid *asteroids, int maxAsteroids)
+bool AnyAsteroidsAlive()
 {
-    int aliveCount = 0;
-
-    for (int i = 0; i < maxAsteroids; ++i)
-    {
-        if (asteroids[i].alive) aliveCount++;
-    }
-
-    return aliveCount > 0;
+	return activeAsteroidCount > 0;
 }
 
 void ResetAsteroids(Asteroid *asteroids, int maxAsteroids)
@@ -124,4 +106,16 @@ void ResetAsteroids(Asteroid *asteroids, int maxAsteroids)
 		if (Vector2Distance(asteroids[i].position, (Vector2){(float) GetScreenWidth()/2, (float) GetScreenHeight()/2}) < 200.0f)
 			Vector2AddValue(asteroids[i].position, 200);
 	}
+
+	activeAsteroidCount = maxAsteroids;
+}
+
+int GetAsteroidsAliveCount()
+{
+	return activeAsteroidCount;
+}
+
+void DecrementAsteroidCount()
+{
+	activeAsteroidCount--;
 }

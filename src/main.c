@@ -17,6 +17,8 @@ int main(void)
 
     InitWindow(screenWidth, screenHeight, "Asteroids");
 
+    InitAudioDevice();
+
     SetTargetFPS(60);
 
     Player player = {0};
@@ -87,20 +89,27 @@ int main(void)
             DrawText(TextFormat("Player Rotation: %.2f", player.rotation), 5, 100, 20, RAYWHITE);
             DrawText(TextFormat("Bullet Iterator: %d", bulletIterator), 5, 120, 20, RAYWHITE);
             DrawText(TextFormat("Shot Cooldown: %f", player.shootCooldown), 5, 140, 20, RAYWHITE);
+	        DrawText(TextFormat("Asteroids: %d", GetAsteroidsAliveCount()), 5, 160, 20, RAYWHITE);
             DrawLineV(player.position, Vector2Add(player.position, Vector2Scale(player.velocity, 2)), GREEN);
         }
 
         DrawText(TextFormat("Score: %d", player.score), screenWidth/2 - 45, 20, 20, RAYWHITE);
 
-        if (!player.alive || !AnyAsteroidsAlive(asteroids, MAX_ASTEROIDS)) DrawText("Press 'R' to reset", GetScreenWidth()/3, GetScreenHeight()/2, 40, RAYWHITE);
+        if (!player.alive || !AnyAsteroidsAlive()) DrawText("Press 'R' to reset", GetScreenWidth()/3, GetScreenHeight()/2, 40, RAYWHITE);
 
         EndDrawing();
     }
+
+	UnloadPlayer(&player);
+
+	UnloadTexture(bulletTexture);
 
 	for (int i = 0; i < 4; ++i)
 	{
 		UnloadTexture(asteroidTextures[i]);
 	}
+
+	CloseAudioDevice();
 
     CloseWindow();
 
