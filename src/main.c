@@ -15,7 +15,7 @@ int main(void)
     const int screenHeight = 768;
     bool debugMode = false;
 
-    InitWindow(screenWidth, screenHeight, "Asteroid Shooter");
+    InitWindow(screenWidth, screenHeight, "Asteroids");
 
     SetTargetFPS(60);
 
@@ -29,17 +29,20 @@ int main(void)
 
     int bulletIterator = 0;
 
-    Texture2D asteroidTexture = LoadTexture("../resources/Meteors/meteorBrown_big1.png");
-    Asteroid asteroids[MAX_ASTEROIDS];
+	Texture2D asteroidTextures[4] = {
+			LoadTexture("../resources/Meteors/meteorBrown_big1.png"),
+			LoadTexture("../resources/Meteors/meteorBrown_big2.png"),
+			LoadTexture("../resources/Meteors/meteorBrown_big3.png"),
+			LoadTexture("../resources/Meteors/meteorBrown_big4.png"),
+	};
 
-	Rectangle asteroidSourceRect = (Rectangle){0, 0, (float) asteroidTexture.width, (float) asteroidTexture.height};
-	Vector2 asteroidOrigin = {(float) asteroidTexture.width/2, (float) asteroidTexture.height/2};
+	Asteroid *asteroids = InitAsteroids(MAX_ASTEROIDS, GetScreenWidth(), GetScreenHeight(), asteroidTextures, 3); // asteroidTexturesCount - 1 because of rand function
 
     Texture2D background = LoadTexture("../resources/darkPurple.png");
     Rectangle backgroundRect = {0, 0, (float) background.width, (float) background.height};
     Rectangle backgroundDestRect = {0, 0, (float)screenWidth, (float)screenHeight};
 
-    ResetGame(&player, asteroids, bullets, bulletTexture, asteroidTexture);
+    ResetGame(&player, asteroids, bullets, bulletTexture, MAX_ASTEROIDS);
 
     while (!WindowShouldClose())
     {
@@ -50,7 +53,7 @@ int main(void)
 
         if (IsKeyPressed(KEY_F1)) debugMode = !debugMode;
 
-        if (IsKeyPressed(KEY_R)) ResetGame(&player, asteroids, bullets, bulletTexture, asteroidTexture);
+        if (IsKeyPressed(KEY_R)) ResetGame(&player, asteroids, bullets, bulletTexture, MAX_ASTEROIDS);
 
         player.acceleration = (Vector2){0, 0};
 
@@ -58,7 +61,7 @@ int main(void)
 
         UpdateBullets(bullets, asteroids, &player, bulletTexture, MAX_BULLETS, MAX_ASTEROIDS, frameTime);
 
-        UpdateAsteroids(asteroids, MAX_ASTEROIDS, &player, asteroidTexture, frameTime);
+        UpdateAsteroids(asteroids, MAX_ASTEROIDS, &player, frameTime);
 
         // ----------------------------------------------
         // Drawing logic
@@ -72,7 +75,7 @@ int main(void)
 
         DrawBullets(bullets, MAX_BULLETS, bulletTexture, bulletSourceRect, bulletOrigin, debugMode);
 
-        DrawAsteroids(asteroids, MAX_ASTEROIDS, asteroidTexture, asteroidSourceRect, asteroidOrigin, debugMode);
+        DrawAsteroids(asteroids, MAX_ASTEROIDS, debugMode);
 
         if (debugMode)
         {
@@ -93,6 +96,11 @@ int main(void)
 
         EndDrawing();
     }
+
+	for (int i = 0; i < 4; ++i)
+	{
+		UnloadTexture(asteroidTextures[i]);
+	}
 
     CloseWindow();
 

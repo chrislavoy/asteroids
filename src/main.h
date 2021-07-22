@@ -48,6 +48,9 @@ typedef struct Asteroid
     float colliderRadius;
     bool alive;
     int level;
+    Rectangle sourceRect;
+    Vector2 origin;
+    Texture2D tex;
 } Asteroid;
 
 #endif //ASTEROIDS_MAIN_H

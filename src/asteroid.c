@@ -2,30 +2,39 @@
 // Created by chris on 7/20/2021.
 //
 
+#include <stdlib.h>
 #include "asteroid.h"
 #include "utils.h"
 
-Asteroid InitAsteroid(Asteroid *asteroid, const int texWidth, const int texHeight, const int screenWidth, const int screenHeight)
+const int movementSpeed = 75;
+
+Asteroid* InitAsteroids(int maxAsteroids, const int screenWidth, const int screenHeight, Texture2D *textures, int texCount)
 {
-    const int movementSpeed = 75;
+	Asteroid *asteroids = (Asteroid*) calloc(maxAsteroids, sizeof(Asteroid));
 
-    asteroid->position = (Vector2){(float)GetRandomValue(0, screenWidth), (float)GetRandomValue(0, screenHeight)};
-    asteroid->velocity = (Vector2){(float)GetRandomValue(-movementSpeed, movementSpeed), (float)GetRandomValue(-movementSpeed, movementSpeed)};
-    asteroid->rotation = (float)GetRandomValue(0, 359);
-    asteroid->tint = WHITE;
-    asteroid->rect = (Rectangle) {0, 0, (float) texWidth, (float) texHeight};
-    asteroid->scale = 1.0f;
-    asteroid->colliderRadius = 35.0f;
-    asteroid->alive = true;
-    asteroid->level = 3;
+	for (int i = 0; i < maxAsteroids; ++i)
+	{
+		asteroids[i].position = (Vector2){(float)GetRandomValue(0, screenWidth), (float)GetRandomValue(0, screenHeight)};
+		asteroids[i].velocity = (Vector2){(float)GetRandomValue(-movementSpeed, movementSpeed), (float)GetRandomValue(-movementSpeed, movementSpeed)};
+		asteroids[i].rotation = (float)GetRandomValue(0, 359);
+		asteroids[i].tint = WHITE;
+		asteroids[i].scale = 1.0f;
+		asteroids[i].colliderRadius = 35.0f;
+		asteroids[i].alive = true;
+		asteroids[i].level = 3;
+		asteroids[i].tex = textures[GetRandomValue(0, texCount)];
+		asteroids[i].sourceRect = (Rectangle){0, 0, (float) asteroids[i].tex.width, (float) asteroids[i].tex.height};
+		asteroids[i].origin = (Vector2) {(float) asteroids[i].tex.width/2, (float) asteroids[i].tex.height/2};
+		asteroids[i].rect = (Rectangle) {0, 0, (float) asteroids[i].tex.width, (float) asteroids[i].tex.height};
 
-    if (Vector2Distance(asteroid->position, (Vector2){(float) screenWidth/2, (float) screenHeight/2}) < 200.0f)
-        Vector2AddValue(asteroid->position, 200);
+		if (Vector2Distance(asteroids[i].position, (Vector2){(float) screenWidth/2, (float) screenHeight/2}) < 200.0f)
+			Vector2AddValue(asteroids[i].position, 200);
+	}
 
-    return *asteroid;
+    return asteroids;
 }
 
-void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Texture2D asteroidTexture, float frameTime)
+void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, float frameTime)
 {
     for (int i = 0; i < maxAsteroids; ++i)
     {
@@ -35,7 +44,7 @@ void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Text
             if (IsKeyPressed(KEY_EQUAL)) asteroids[i].scale += 0.5f;
 
             asteroids[i].position = UpdatePosition(&asteroids[i].position, &asteroids[i].velocity, frameTime);
-            asteroids[i].rect = UpdateRectangle(&asteroids[i].position, asteroidTexture, asteroids[i].scale);
+            asteroids[i].rect = UpdateRectangle(&asteroids[i].position, asteroids[i].tex, asteroids[i].scale);
 
             if (CheckCollisionCircles(player->position, player->colliderRadius, asteroids[i].position, asteroids[i].colliderRadius))
             {
@@ -74,13 +83,13 @@ void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Text
     }
 }
 
-void DrawAsteroids(Asteroid *asteroids, int maxAsteroids, Texture2D asteroidTexture, Rectangle asteroidSourceRect, Vector2 asteroidOrigin, bool debugMode)
+void DrawAsteroids(Asteroid *asteroids, int maxAsteroids, bool debugMode)
 {
     for (int i = 0; i < maxAsteroids; ++i)
     {
         if (asteroids[i].alive)
         {
-            DrawTexturePro(asteroidTexture, asteroidSourceRect, asteroids[i].rect, asteroidOrigin, asteroids[i].rotation, asteroids[i].tint);
+            DrawTexturePro(asteroids[i].tex, asteroids[i].sourceRect, asteroids[i].rect, asteroids[i].origin, asteroids[i].rotation, asteroids[i].tint);
 
             if (debugMode) DrawCircleLines(asteroids[i].position.x, asteroids[i].position.y, asteroids[i].colliderRadius * asteroids[i].scale, GREEN);
         }
@@ -97,4 +106,22 @@ bool AnyAsteroidsAlive(Asteroid *asteroids, int maxAsteroids)
     }
 
     return aliveCount > 0;
+}
+
+void ResetAsteroids(Asteroid *asteroids, int maxAsteroids)
+{
+	for (int i = 0; i < maxAsteroids; ++i)
+	{
+		asteroids[i].position = (Vector2){(float)GetRandomValue(0, GetScreenWidth()), (float)GetRandomValue(0, GetScreenHeight())};
+		asteroids[i].velocity = (Vector2){(float)GetRandomValue(-movementSpeed, movementSpeed), (float)GetRandomValue(-movementSpeed, movementSpeed)};
+		asteroids[i].rotation = (float)GetRandomValue(0, 359);
+		asteroids[i].tint = WHITE;
+		asteroids[i].scale = 1.0f;
+		asteroids[i].colliderRadius = 35.0f;
+		asteroids[i].alive = true;
+		asteroids[i].level = 3;
+
+		if (Vector2Distance(asteroids[i].position, (Vector2){(float) GetScreenWidth()/2, (float) GetScreenHeight()/2}) < 200.0f)
+			Vector2AddValue(asteroids[i].position, 200);
+	}
 }

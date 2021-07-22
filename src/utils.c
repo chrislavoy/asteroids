@@ -46,19 +46,21 @@ Rectangle UpdateRectangle(Vector2 *position, Texture2D tex, float scale)
     };
 }
 
-void ResetGame(Player *player, Asteroid *asteroids, Bullet *bullets, Texture2D bulletTexture, Texture2D asteroidTexture)
+void ResetGame(Player *player, Asteroid *asteroids, Bullet *bullets, Texture2D bulletTexture, int maxAsteroids)
 {
-    *player = InitPlayer(GetScreenWidth(), GetScreenHeight(), player);
+    *player = InitPlayer(GetScreenWidth(), GetScreenHeight(), player, false);
 
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         bullets[i] = InitBullet(&bullets[i], bulletTexture.width, bulletTexture.height);
     }
 
-    for (int i = 0; i < MAX_ASTEROIDS; ++i)
-    {
-        asteroids[i] = InitAsteroid(&asteroids[i], asteroidTexture.width, asteroidTexture.height, GetScreenWidth(), GetScreenHeight());
-    }
+//    for (int i = 0; i < MAX_ASTEROIDS; ++i)
+//    {
+//        asteroids[i] = InitAsteroid(&asteroids[i], asteroidTexture.width, asteroidTexture.height, GetScreenWidth(), GetScreenHeight());
+//    }
+
+	ResetAsteroids(asteroids, maxAsteroids);
 
     bool checkForCollisions = true;
 

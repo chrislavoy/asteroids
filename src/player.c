@@ -10,7 +10,12 @@
 #define SHOT_COOLDOWN 0.2f
 #define BULLET_LIFETIME 0.5f
 
-Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
+int upKey;
+int downKey;
+int leftKey;
+int rightKey;
+
+Player InitPlayer(const int screenWidth, const int screenHeight, Player *player, bool arrowKeys)
 {
     player->position = (Vector2) {(float)screenWidth / 2, (float)screenHeight / 2};
     player->acceleration = Vector2Zero();
@@ -27,6 +32,22 @@ Player InitPlayer(const int screenWidth, const int screenHeight, Player *player)
     player->shootCooldown = 0.0f;
     player->score = 0;
     player->alive = true;
+
+    if (arrowKeys)
+    {
+	    upKey = KEY_UP;
+	    downKey = KEY_DOWN;
+	    leftKey = KEY_LEFT;
+	    rightKey = KEY_RIGHT;
+    }
+    else
+    {
+	    upKey = KEY_W;
+	    downKey = KEY_S;
+	    leftKey = KEY_A;
+	    rightKey = KEY_D;
+    }
+
     return *player;
 }
 
@@ -38,10 +59,10 @@ void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxB
         player->shootCooldown -= 1 * frameTime;
         if (player->shootCooldown <= 0) player->shootCooldown = 0;
 
-        if (IsKeyDown(KEY_W)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, -1}, player->rotation), player->movementSpeed);
-        if (IsKeyDown(KEY_S)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, 1}, player->rotation), player->movementSpeed);
-        if (IsKeyDown(KEY_A)) player->rotation -= 180 * frameTime;
-        if (IsKeyDown(KEY_D)) player->rotation += 180 * frameTime;
+        if (IsKeyDown(upKey)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, -1}, player->rotation), player->movementSpeed);
+        if (IsKeyDown(downKey)) player->acceleration = Vector2Scale(Vector2Rotate((Vector2){0, 1}, player->rotation), player->movementSpeed);
+        if (IsKeyDown(leftKey)) player->rotation -= 180 * frameTime;
+        if (IsKeyDown(rightKey)) player->rotation += 180 * frameTime;
         if (IsKeyDown(KEY_X)) player->velocity = (Vector2) {0, 0};
         if (IsKeyDown(KEY_SPACE) && player->shootCooldown <= 0)
         {

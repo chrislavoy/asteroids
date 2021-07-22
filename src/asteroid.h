@@ -9,9 +9,10 @@
 #include "raymath.h"
 #include "main.h"
 
-Asteroid InitAsteroid(Asteroid *asteroid, const int texWidth, const int texHeight, const int screenWidth, const int screenHeight);
-void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, Texture2D asteroidTexture, float frameTime);
-void DrawAsteroids(Asteroid *asteroids, int maxAsteroids, Texture2D asteroidTexture, Rectangle asteroidSourceRect, Vector2 asteroidOrigin, bool debugMode);
+Asteroid* InitAsteroids(int maxAsteroids, const int screenWidth, const int screenHeight, Texture2D *textures, int texCount);
+void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, float frameTime);
+void DrawAsteroids(Asteroid *asteroids, int maxAsteroids, bool debugMode);
 bool AnyAsteroidsAlive(Asteroid *asteroids, int maxAsteroids);
+void ResetAsteroids(Asteroid *asteroids, int maxAsteroids);
 
 #endif //ASTEROIDS_ASTEROID_H
