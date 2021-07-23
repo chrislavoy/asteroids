@@ -73,9 +73,12 @@ void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, floa
                     {
                         if (CheckCollisionCircles(asteroids[i].position, asteroids[i].colliderRadius, asteroids[j].position, asteroids[j].colliderRadius))
                         {
-                            // TODO: Rework collision logic
-                            asteroids[i].velocity = Vector2Rotate(asteroids[i].velocity, Vector2Angle(asteroids[i].velocity, asteroids[j].velocity));
-                            asteroids[j].velocity = Vector2Rotate(asteroids[j].velocity, Vector2Angle(asteroids[j].velocity, asteroids[i].velocity));
+                            Vector2 collisionNormal = Vector2Subtract(asteroids[i].velocity, asteroids[j].velocity);
+                            float angleI = Vector2Angle(asteroids[i].velocity, collisionNormal);
+                            float angleJ = Vector2Angle(asteroids[j].velocity, collisionNormal);
+
+                            asteroids[i].velocity = Vector2Rotate(asteroids[i].velocity, angleI);
+                            asteroids[j].velocity = Vector2Rotate(asteroids[j].velocity, angleJ);
                         }
                     }
                 }
