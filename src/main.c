@@ -31,14 +31,18 @@ int main(void)
 
     int bulletIterator = 0;
 
-	Texture2D asteroidTextures[4] = {
+	Texture2D asteroidTextures[8] = {
 			LoadTexture("../resources/Meteors/meteorBrown_big1.png"),
 			LoadTexture("../resources/Meteors/meteorBrown_big2.png"),
 			LoadTexture("../resources/Meteors/meteorBrown_big3.png"),
 			LoadTexture("../resources/Meteors/meteorBrown_big4.png"),
+            LoadTexture("../resources/Meteors/meteorBrown_med1.png"),
+            LoadTexture("../resources/Meteors/meteorBrown_med3.png"),
+            LoadTexture("../resources/Meteors/meteorBrown_small1.png"),
+            LoadTexture("../resources/Meteors/meteorBrown_small2.png")
 	};
 
-	Asteroid *asteroids = InitAsteroids(MAX_ASTEROIDS, GetScreenWidth(), GetScreenHeight(), asteroidTextures, 3); // asteroidTexturesCount - 1 because of rand function
+	Asteroid *asteroids = InitAsteroids(MAX_ASTEROIDS, GetScreenWidth(), GetScreenHeight(), asteroidTextures);
 
     Texture2D background = LoadTexture("../resources/darkPurple.png");
     Rectangle backgroundRect = {0, 0, (float) background.width, (float) background.height};

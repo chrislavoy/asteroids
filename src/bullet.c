@@ -37,7 +37,7 @@ void UpdateBullets(Bullet *bullets, struct Asteroid *asteroids, struct Player *p
                 {
                     if (CheckCollisionCircles(bullets[i].position, bullets[i].colliderRadius, asteroids[j].position, asteroids[j].colliderRadius))
                     {
-                        asteroids[j].tint = RED;
+//                        asteroids[j].tint = RED;
                         asteroids[j].alive = false;
                         bullets[i].visible = false;
                         player->score += 10;
