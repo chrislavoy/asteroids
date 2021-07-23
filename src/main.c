@@ -52,6 +52,7 @@ int main(void)
     Sound shootSound = LoadSound("../resources/Sounds/laser.ogg");
     Sound playerExplosion = LoadSound("../resources/Sounds/explosion.ogg");
 
+    SetMasterVolume(70);
 
     ResetGame(&player, asteroids, bullets, bulletTexture, MAX_ASTEROIDS);
 
