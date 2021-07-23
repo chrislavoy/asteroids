@@ -23,7 +23,6 @@ Asteroid* InitAsteroids(int maxAsteroids, const int screenWidth, const int scree
 		asteroids[i].velocity = (Vector2){(float)GetRandomValue(-movementSpeed[level - 1], movementSpeed[level - 1]), (float)GetRandomValue(-movementSpeed[level - 1], movementSpeed[level - 1])};
 		asteroids[i].rotation = (float)GetRandomValue(0, 359);
 		asteroids[i].tint = WHITE;
-//		asteroids[i].scale = 1.0f;
 		asteroids[i].colliderRadius = colliderSize[asteroids[i].level - 1];
 		asteroids[i].alive = true;
         switch (asteroids[i].level) {
@@ -48,23 +47,24 @@ Asteroid* InitAsteroids(int maxAsteroids, const int screenWidth, const int scree
     return asteroids;
 }
 
-void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, float frameTime)
+void UpdateAsteroids(Asteroid *asteroids, int maxAsteroids, Player *player, float frameTime, Sound playerExplosion)
 {
     for (int i = 0; i < maxAsteroids; ++i)
     {
         if (asteroids[i].alive)
         {
-//            if (IsKeyPressed(KEY_MINUS)) asteroids[i].scale -= 0.5f;
-//            if (IsKeyPressed(KEY_EQUAL)) asteroids[i].scale += 0.5f;
-
             asteroids[i].position = UpdatePosition(&asteroids[i].position, &asteroids[i].velocity, frameTime);
             asteroids[i].rect = UpdateRectangle(&asteroids[i].position, asteroids[i].tex, 1);
 
-            if (CheckCollisionCircles(player->position, player->colliderRadius, asteroids[i].position, asteroids[i].colliderRadius))
+            if (player->alive)
             {
-                player->alive = false;
-            }
+                if (CheckCollisionCircles(player->position, player->colliderRadius, asteroids[i].position, asteroids[i].colliderRadius))
+                {
+                    player->alive = false;
+                    PlaySound(playerExplosion);
+                }
 
+            }
             for (int j = 0; j < maxAsteroids; j++)
             {
                 if (i != j)
@@ -119,7 +119,6 @@ void ResetAsteroids(Asteroid *asteroids, int maxAsteroids)
 		asteroids[i].velocity = (Vector2){(float)GetRandomValue(-movementSpeed[asteroids[i].level - 1], movementSpeed[asteroids[i].level - 1]), (float)GetRandomValue(-movementSpeed[asteroids[i].level - 1], movementSpeed[asteroids[i].level - 1])};
 		asteroids[i].rotation = (float)GetRandomValue(0, 359);
 //		asteroids[i].tint = WHITE;
-//		asteroids[i].scale = 1.0f;
 //        asteroids[i].colliderRadius = colliderSize[asteroids[i].level - 1];
 		asteroids[i].alive = true;
 //		asteroids[i].level = 3;

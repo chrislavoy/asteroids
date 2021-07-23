@@ -21,7 +21,7 @@ Bullet InitBullet(Bullet *bullet, const int texWidth, const int texHeight)
     return *bullet;
 }
 
-void UpdateBullets(Bullet *bullets, struct Asteroid *asteroids, struct Player *player, Texture2D bulletTexture, int maxBullets, int maxAsteroids, float frameTime)
+void UpdateBullets(Bullet *bullets, struct Asteroid *asteroids, struct Player *player, Texture2D bulletTexture, int maxBullets, int maxAsteroids, float frameTime, Sound asteroidExplosion)
 {
     for (int i = 0; i < maxBullets; i++)
     {
@@ -42,6 +42,7 @@ void UpdateBullets(Bullet *bullets, struct Asteroid *asteroids, struct Player *p
                         bullets[i].visible = false;
                         player->score += 10;
 	                    DecrementAsteroidCount();
+                        PlaySound(asteroidExplosion);
                     }
                 }
             }

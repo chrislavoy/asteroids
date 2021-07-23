@@ -42,7 +42,6 @@ typedef struct Asteroid
     Vector2 position;
     Vector2 velocity;
     float rotation;
-//    float scale;
     Rectangle rect;
     Color tint;
     float colliderRadius;

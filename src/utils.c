@@ -55,11 +55,6 @@ void ResetGame(Player *player, Asteroid *asteroids, Bullet *bullets, Texture2D b
         bullets[i] = InitBullet(&bullets[i], bulletTexture.width, bulletTexture.height);
     }
 
-//    for (int i = 0; i < MAX_ASTEROIDS; ++i)
-//    {
-//        asteroids[i] = InitAsteroid(&asteroids[i], asteroidTexture.width, asteroidTexture.height, GetScreenWidth(), GetScreenHeight());
-//    }
-
 	ResetAsteroids(asteroids, maxAsteroids);
 
     bool checkForCollisions = true;

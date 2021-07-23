@@ -48,6 +48,11 @@ int main(void)
     Rectangle backgroundRect = {0, 0, (float) background.width, (float) background.height};
     Rectangle backgroundDestRect = {0, 0, (float)screenWidth, (float)screenHeight};
 
+    Sound asteroidExplosion = LoadSound("../resources/Sounds/lowExplosion.ogg");
+    Sound shootSound = LoadSound("../resources/Sounds/laser.ogg");
+    Sound playerExplosion = LoadSound("../resources/Sounds/explosion.ogg");
+
+
     ResetGame(&player, asteroids, bullets, bulletTexture, MAX_ASTEROIDS);
 
     while (!WindowShouldClose())
@@ -63,11 +68,11 @@ int main(void)
 
         player.acceleration = (Vector2){0, 0};
 
-        UpdatePlayer(&player, &bulletIterator, bullets, MAX_BULLETS, frameTime);
+        UpdatePlayer(&player, &bulletIterator, bullets, MAX_BULLETS, frameTime, shootSound);
 
-        UpdateBullets(bullets, asteroids, &player, bulletTexture, MAX_BULLETS, MAX_ASTEROIDS, frameTime);
+        UpdateBullets(bullets, asteroids, &player, bulletTexture, MAX_BULLETS, MAX_ASTEROIDS, frameTime, asteroidExplosion);
 
-        UpdateAsteroids(asteroids, MAX_ASTEROIDS, &player, frameTime);
+        UpdateAsteroids(asteroids, MAX_ASTEROIDS, &player, frameTime, playerExplosion);
 
         // ----------------------------------------------
         // Drawing logic

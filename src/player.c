@@ -51,7 +51,7 @@ Player InitPlayer(const int screenWidth, const int screenHeight, Player *player,
     return *player;
 }
 
-void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxBullets, float frameTime)
+void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxBullets, float frameTime, Sound shootSound)
 {
     if (player->alive)
     {
@@ -68,6 +68,7 @@ void UpdatePlayer(Player *player, int *bulletIterator, Bullet *bullets, int maxB
         {
             *bulletIterator = (*bulletIterator + 1) % ((int)maxBullets - 1);
             Shoot(player, &bullets[*bulletIterator]);
+            PlaySound(shootSound);
             player->shootCooldown = SHOT_COOLDOWN;
         }
 
