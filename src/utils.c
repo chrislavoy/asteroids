@@ -14,8 +14,8 @@ void ScreenLoop(Vector2 *position)
 {
     const float screenWidth = (float) GetScreenWidth();
     const float screenHeight = (float) GetScreenHeight();
-    const float x_offset = 50.0f;
-    const float y_offset = 40.0f;
+    const float x_offset = 25.0f;
+    const float y_offset = 25.0f;
 
     if (position->x <= 0 - x_offset) position->x = screenWidth + x_offset;
     else if (position->x >= screenWidth + x_offset) position->x = 0 - x_offset;

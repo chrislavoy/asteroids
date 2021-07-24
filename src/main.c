@@ -15,6 +15,8 @@ int main(void)
     const int screenHeight = 768;
     bool debugMode = false;
 
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
+
     InitWindow(screenWidth, screenHeight, "Asteroids");
 
     InitAudioDevice();
